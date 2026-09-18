@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>벽 통과 챌린지 | 게임 코너</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link rel="stylesheet" href="../shared/game.css" />
+</head>
+<body>
+  <header class="top">
+    <a href="../">← 게임 코너</a>
+    <h1>🧱 벽 통과 챌린지</h1>
+    <p>다가오는 벽의 구멍 모양대로 몸을 맞춰 통과하세요!</p>
+    <div class="tools">
+      <button class="tool restart" id="restartBtn" type="button" hidden>↺ 다시 하기</button>
+      <button class="tool" id="muteBtn" type="button">🔊 소리 끄기</button>
+      <button class="tool" id="fsBtn" type="button">⛶ 전체 화면</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="stage" id="stage">
+      <video id="video" playsinline muted></video>
+      <canvas id="canvas" width="1280" height="720"></canvas>
+      <div class="hud">
+        <span class="pill">통과 <b id="passed">0</b></span>
+        <span class="pill" id="misses">❤️❤️❤️</span>
+        <span class="pill">자세 <b id="poseName">🙌 만세</b></span>
+        <span class="pill right">오늘의 최고 <b id="best">0</b></span>
+      </div>
+      <div class="overlay" id="overlay">
+        <div class="big">🧱🙌</div>
+        <h2>벽 통과 챌린지</h2>
+        <ul>
+          <li>🧱 사람 모양 구멍이 뚫린 벽이 다가와요</li>
+          <li>🟢 팔다리가 구멍 방향과 맞으면 초록, 틀리면 빨강으로 보여요</li>
+          <li>💥 벽이 닿을 때 모양이 맞지 않으면 부딪혀요. 3번 부딪히면 끝</li>
+        </ul>
+        <div class="modes" role="group" aria-label="모드 고르기">
+          <button type="button" data-mode="standing" aria-pressed="true">🧍 서서 하기 (온몸)</button>
+          <button type="button" data-mode="seated" aria-pressed="false">🪑 앉아서 하기 (팔만)</button>
+        </div>
+        <button class="primary" id="startBtn" type="button">카메라 켜고 시작하기</button>
+        <p id="overlayMsg">카메라 영상은 저장하거나 전송하지 않고, 이 기기 안에서만 처리해요.</p>
+      </div>
+    </section>
+  </main>
+
+  <section class="help">
+    <div><b>⚠️ 안전하게</b>주변 2m를 비우고, 다리 드는 자세는 넘어지지 않게 조심해요. 어려우면 "앉아서 하기"를 고르세요.</div>
+    <div><b>잘 안 되면?</b>서서 하기는 발끝까지, 앉아서 하기는 양손 끝까지 화면에 보여야 해요. 카메라에서 2~3m 떨어져 보세요.</div>
+    <div><b>숨은 원리</b>키가 달라도 공평하도록 몸의 크기가 아니라 팔다리가 가리키는 각도만 비교해요. 35도 안쪽이면 "맞음"이에요.</div>
+    <div><b>바꿔 보기</b><code>rules.js</code>의 <code>POSES</code>에 새 자세를 추가하거나 <code>ANGLE_TOLERANCE</code>로 난이도를 바꿔 보세요.</div>
+  </section>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

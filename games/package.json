@@ -1,0 +1,10 @@
+{
+  "name": "mediapipe-game-corner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MediaPipe 게임 코너 (과일 닌자, 벽 통과 챌린지, 손 탁구, 표정 챌린지, 거꾸로 가위바위보)",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}

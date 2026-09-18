@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>거꾸로 가위바위보 | 게임 코너</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link rel="stylesheet" href="../shared/game.css" />
+</head>
+<body>
+  <header class="top">
+    <a href="../">← 게임 코너</a>
+    <h1>✊ 거꾸로 가위바위보</h1>
+    <p>컴퓨터가 낸 손을 보고, 지시대로 이기거나 지거나 비겨 보세요!</p>
+    <div class="tools">
+      <button class="tool restart" id="restartBtn" type="button" hidden>↺ 다시 하기</button>
+      <button class="tool" id="muteBtn" type="button">🔊 소리 끄기</button>
+      <button class="tool" id="fsBtn" type="button">⛶ 전체 화면</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="stage" id="stage">
+      <video id="video" playsinline muted></video>
+      <canvas id="canvas" width="1280" height="720"></canvas>
+      <div class="hud">
+        <span class="pill">맞힌 문제 <b id="score">0</b></span>
+        <span class="pill" id="misses">❤️❤️❤️</span>
+        <span class="pill right">오늘의 최고 <b id="best">0</b></span>
+      </div>
+      <div class="overlay" id="overlay">
+        <div class="big">✊✌️✋</div>
+        <h2>거꾸로 가위바위보</h2>
+        <ul>
+          <li>🤖 컴퓨터가 손을 내면 <b>"져라!"</b> 같은 지시가 나와요</li>
+          <li>🖐 지시대로 가위·바위·보를 카메라에 보여 주세요</li>
+          <li>🔀 5문제가 지나면 "이겨라", "비겨라"도 섞여요. 3번 틀리면 끝</li>
+        </ul>
+        <button class="primary" id="startBtn" type="button">카메라 켜고 시작하기</button>
+        <p id="overlayMsg">카메라 영상은 저장하거나 전송하지 않고, 이 기기 안에서만 처리해요.</p>
+      </div>
+    </section>
+  </main>
+
+  <section class="help">
+    <div><b>손 모양 규칙</b>✊ 바위 = 손가락 모두 접기 · ✌️ 가위 = 검지+중지 · ✋ 보 = 네 손가락 펴기 (엄지는 세지 않아요)</div>
+    <div><b>잘 안 되면?</b>손바닥이 카메라를 향하게 하고, 손 아래 이름표로 AI가 어떻게 읽는지 확인해 보세요.</div>
+    <div><b>숨은 원리</b>손가락이 펴졌는지는 project1 손가락 퀴즈의 <code>rules.js</code>를 그대로 불러와 써요. 한 번 만든 규칙을 다시 쓰는 거예요.</div>
+    <div><b>바꿔 보기</b><code>rules.js</code>의 <code>LOSE_ONLY_ROUNDS</code>, <code>HOLD_SECONDS</code>로 난이도를 바꿔 보세요.</div>
+  </section>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
