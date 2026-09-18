@@ -139,6 +139,8 @@
   /* ── 상단 바 ── */
   .topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; margin-inline: -20px; padding-inline: 20px; border-bottom: 1px solid var(--rule); background: color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter: blur(10px); }
   .topbar-inner { display: flex; align-items: center; gap: 18px; min-height: 58px; }
+  .home { padding: 5px 12px; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink-2); font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+  .home:hover { background: var(--sunken); color: var(--ink); }
   .brand { display: flex; align-items: center; gap: 9px; color: var(--ink); font-family: var(--display); font-size: 22px; text-decoration: none; white-space: nowrap; }
   .brand svg { width: 24px; height: 24px; }
   .brand path { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -148,7 +150,7 @@
   .nav a { padding: 6px 11px; border-radius: 8px; color: var(--ink-2); font-size: 14.5px; text-decoration: none; white-space: nowrap; }
   .nav a:hover { background: var(--sunken); color: var(--ink); }
   @media (max-width: 760px) {
-    .topbar-inner { flex-wrap: wrap; gap: 0; padding-block: 8px 4px; min-height: 0; }
+    .topbar-inner { flex-wrap: wrap; gap: 0 10px; padding-block: 8px 4px; min-height: 0; }
     .nav { width: 100%; margin-left: -10px; }
   }
 
@@ -401,6 +403,7 @@
 
 <div class="topbar">
   <div class="wrap topbar-inner">
+    <a class="home" href="../../">🏠 처음으로</a>
     <a class="brand" href="#top">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5 12.5 12.5 7 19.5" /><circle cx="5" cy="4.5" r="2.6" /><circle cx="12.5" cy="12.5" r="2.6" /><circle cx="7" cy="19.5" r="2.6" /></svg>
       MediaPipe 앱 교실

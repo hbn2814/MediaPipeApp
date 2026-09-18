@@ -118,6 +118,9 @@
   .toc ul { list-style: none; display: flex; gap: 6px; margin: 0 auto; padding: 10px 20px; max-width: 1040px; overflow-x: auto; scrollbar-width: none; }
   .toc a { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; padding: 6px 12px; border-radius: 999px; color: var(--ink); text-decoration: none; font-size: 14.5px; font-weight: 500; }
   .toc a:hover { background: var(--soft); }
+  .home-top { display: inline-block; margin-bottom: 18px; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--ink); font-size: 14px; font-weight: 700; text-decoration: none; }
+  .home-top:hover { background: var(--soft); }
+  .toc a.home { font-weight: 700; border: 1px solid var(--line); background: var(--panel); margin-right: 6px; }
   .toc i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
 
   /* ── 공통 섹션 ── */
@@ -283,6 +286,7 @@
 </style>
 
 <header class="hero">
+  <div class="wrap"><a class="home-top" href="../">🏠 처음으로</a></div>
   <div class="wrap hero-grid">
     <div>
       <p class="label">MEDIAPIPE × 탐구 × 게임 · 함께 만드는 기획안</p>
@@ -300,6 +304,7 @@
 
 <nav class="toc" aria-label="목차">
   <ul id="toc">
+    <li><a class="home" href="../">🏠 처음으로</a></li>
     <li><a href="#tech">기술</a></li>
     <li><a href="#process">진행 방법</a></li>
     <li><a href="#try">체험</a></li>
