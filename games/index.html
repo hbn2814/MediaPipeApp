@@ -30,9 +30,10 @@
     html { color-scheme: dark; }
     body { margin: 0; font-family: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; background: radial-gradient(1200px 500px at 50% -10%, #1f2a4a 0%, var(--bg) 60%) no-repeat, var(--bg); color: var(--ink); line-height: 1.6; word-break: keep-all; }
     .wrap { max-width: 1080px; margin: 0 auto; padding: 36px 20px 64px; }
-    .back { color: var(--muted); text-decoration: none; font-size: 14px; }
-    .back:hover { color: var(--ink); }
-    h1 { margin: 12px 0 6px; font-size: clamp(32px, 6vw, 52px); letter-spacing: -0.03em; }
+    .home { display: inline-block; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--ink); font-size: 14px; font-weight: 700; text-decoration: none; }
+    .home:hover { border-color: var(--accent); }
+    .home:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+    h1 { margin: 18px 0 6px; font-size: clamp(32px, 6vw, 52px); letter-spacing: -0.03em; }
     h1 span { color: var(--accent); }
     .lead { margin: 0 0 22px; max-width: 44em; color: var(--muted); font-size: 17px; }
     .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
@@ -67,7 +68,7 @@
 </head>
 <body>
   <div class="wrap">
-    <a class="back" href="../">← 처음으로</a>
+    <a class="home" href="../">🏠 처음으로</a>
     <h1>🎮 게임 <span>코너</span></h1>
     <p class="lead">준비물 없이 카메라만 켜면 바로 하는 MediaPipe 게임 10가지예요. 한 판에 1~2분, 수업 시작 전 워밍업이나 쉬는 시간에 즐겨 보세요.</p>
 
