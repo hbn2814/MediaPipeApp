@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MediaPipe 학교 앱</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --ink: #111a24;
+      --muted: #5b6776;
+      --line: #dce2e9;
+      --learn: #2f6bff;
+      --move: #f0562e;
+      --self: #13a07a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 24px 64px; }
+    h1 { margin: 0 0 8px; font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.03em; }
+    .lead { margin: 0 0 32px; max-width: 42em; color: var(--muted); font-size: 17px; }
+    .apps { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .app { display: flex; flex-direction: column; gap: 10px; padding: 22px; border: 1px solid var(--line); border-top: 6px solid var(--c); border-radius: 16px; background: var(--panel); color: inherit; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; }
+    .app:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(17, 26, 36, 0.08); }
+    .app:focus-visible { outline: 3px solid var(--c); outline-offset: 3px; }
+    .tag { align-self: flex-start; padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--c) 14%, white); color: var(--c); font-size: 13px; font-weight: 700; }
+    .app h2 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
+    .app p { margin: 0; color: var(--muted); }
+    .app dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; margin: 4px 0 0; font-size: 14px; }
+    .app dt { color: var(--muted); }
+    .app dd { margin: 0; }
+    .open { margin-top: auto; padding-top: 8px; color: var(--c); font-weight: 700; }
+    .app.guide { margin-top: 16px; }
+    .note { margin-top: 32px; padding: 18px 20px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); color: var(--muted); }
+    .note b { color: var(--ink); }
+    code { padding: 1px 6px; border-radius: 6px; background: var(--bg); font-size: 0.92em; }
+    @media (prefers-reduced-motion: reduce) { .app { transition: none; } .app:hover { transform: none; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>MediaPipe 학교 앱</h1>
+    <p class="lead">카메라가 찾아 준 손·몸·얼굴의 점(랜드마크)에 우리가 만든 규칙을 더해 동작하는 앱이에요. 영상은 저장하거나 전송하지 않고 이 컴퓨터 안에서만 처리합니다.</p>
+
+    <div class="apps">
+      <a class="app" href="finger-quiz/" style="--c: var(--learn)">
+        <span class="tag">학습</span>
+        <h2>손가락 퀴즈</h2>
+        <p>정답 번호만큼 손가락을 펴서 답하는 퀴즈</p>
+        <dl><dt>AI 기능</dt><dd>Hand Landmarker · 점 21개</dd><dt>핵심 원리</dt><dd>거리 비교, 유지 시간</dd></dl>
+        <span class="open">열기 →</span>
+      </a>
+      <a class="app" href="squat-counter/" style="--c: var(--move)">
+        <span class="tag">신체활동</span>
+        <h2>스쿼트 카운터</h2>
+        <p>무릎 각도로 스쿼트 개수를 세는 운동 도우미</p>
+        <dl><dt>AI 기능</dt><dd>Pose Landmarker · 점 33개</dd><dt>핵심 원리</dt><dd>벡터 각도, 상태 기계</dd></dl>
+        <span class="open">열기 →</span>
+      </a>
+      <a class="app" href="focus-timer/" style="--c: var(--self)">
+        <span class="tag">자기주도학습</span>
+        <h2>집중 타이머</h2>
+        <p>자리에서 집중하는 동안만 흐르는 공부 타이머</p>
+        <dl><dt>AI 기능</dt><dd>Face Landmarker · 점 478개 + 표정 점수</dd><dt>핵심 원리</dt><dd>비율, 시간 조건</dd></dl>
+        <span class="open">열기 →</span>
+      </a>
+    </div>
+
+    <a class="app guide" href="guide/" style="--c: #0e7a50">
+      <span class="tag">학습 자료</span>
+      <h2>MediaPipe 앱 교실</h2>
+      <p>아이디어 15가지, 좌표·규칙·떨림 잡기 원리 실험 5가지, 스쿼트 카운터를 따라 만드는 8단계, 설계 카드</p>
+      <span class="open">자료 열기 →</span>
+    </a>
+
+    <p class="note"><b>카메라가 안 켜지나요?</b> 파일을 더블클릭하지 말고 VS Code의 <b>Live Server</b>나 <code>python -m http.server 5500</code>으로 열어 주세요. 자세한 내용은 <code>README.md</code>에 있어요.</p>
+  </div>
+</body>
+</html>

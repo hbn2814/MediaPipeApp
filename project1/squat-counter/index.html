@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>스쿼트 카운터 | MediaPipe 학교 앱</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <style>
+    :root {
+      --bg: #f2efec;
+      --panel: #ffffff;
+      --ink: #1d1410;
+      --muted: #6e625b;
+      --line: #e3dbd4;
+      --accent: #f0562e;
+      --down-soft: #ffd9cc;
+      --down-ink: #b93a14;
+      --up-soft: #cdeede;
+      --up-ink: #0b7a55;
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      font-family: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    .top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; max-width: 1280px; margin: 0 auto; padding: 20px 24px 8px; }
+    .top a { color: var(--muted); text-decoration: none; font-size: 14px; }
+    .top h1 { margin: 0; font-size: 26px; letter-spacing: -0.02em; }
+    .top p { margin: 0; color: var(--muted); }
+    main { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 20px; max-width: 1280px; margin: 0 auto; padding: 12px 24px 32px; }
+    @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+    .stage { position: relative; align-self: start; aspect-ratio: 16 / 9; border-radius: var(--radius); overflow: hidden; background: #140e0b; }
+    .stage video, .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); /* 거울처럼 좌우 반전 */ }
+    .overlay { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 12px; padding: 24px; text-align: center; background: rgba(20, 14, 11, 0.78); color: #fff; }
+    .overlay p { margin: 0; max-width: 34em; color: #e0d6cf; font-size: 14px; }
+    button { font: inherit; cursor: pointer; }
+    .primary { padding: 14px 26px; border: 0; border-radius: 999px; background: var(--accent); color: #fff; font-size: 18px; font-weight: 700; }
+    .primary:disabled { opacity: 0.6; cursor: progress; }
+    .secondary { padding: 10px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--ink); font-weight: 600; }
+    button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+    .panel { display: flex; flex-direction: column; gap: 14px; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+    .count-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .count { font-size: 104px; font-weight: 800; line-height: 1; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+    .count-side { display: grid; justify-items: end; gap: 10px; }
+    .pill { padding: 4px 14px; border-radius: 999px; font-weight: 700; }
+    .pill.up { background: var(--up-soft); color: var(--up-ink); }
+    .pill.down { background: var(--down-soft); color: var(--down-ink); }
+    .goal { color: var(--muted); }
+    .goal input { width: 4.2em; padding: 4px 6px; border: 1px solid var(--line); border-radius: 8px; font: inherit; text-align: right; }
+    .goalbar { height: 10px; border-radius: 999px; background: #ece6e1; overflow: hidden; }
+    .goalbar div { width: 0; height: 100%; background: var(--accent); transition: width 0.3s; }
+    .goal-text { margin: -6px 0 0; color: var(--muted); font-size: 14px; }
+
+    .gauge-box { display: grid; gap: 8px; padding: 14px; border-radius: 14px; background: var(--bg); }
+    .gauge-head { display: flex; justify-content: space-between; align-items: baseline; }
+    .gauge-head b { font-size: 28px; font-variant-numeric: tabular-nums; }
+    .gauge { position: relative; height: 18px; border-radius: 999px; background: #fff; }
+    .zone { position: absolute; top: 0; bottom: 0; }
+    .zone.down { left: 0; border-radius: 999px 0 0 999px; background: var(--down-soft); }
+    .zone.up { right: 0; border-radius: 0 999px 999px 0; background: var(--up-soft); }
+    .needle { position: absolute; top: -6px; bottom: -6px; width: 4px; margin-left: -2px; border-radius: 2px; background: var(--ink); }
+    .scale { position: relative; height: 18px; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .scale span { position: absolute; transform: translateX(-50%); }
+    .scale .end { left: 0; transform: none; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 0; color: var(--muted); font-size: 13px; }
+    .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 4px; border-radius: 3px; vertical-align: -1px; }
+    .legend .down { background: var(--down-soft); }
+    .legend .up { background: var(--up-soft); }
+
+    .message { min-height: 1.5em; margin: 0; font-size: 18px; font-weight: 600; }
+    .actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .toggle { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+    .howto { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--bg); color: var(--muted); font-size: 14px; }
+    @media (prefers-reduced-motion: reduce) { .goalbar div { transition: none; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <a href="../">← 앱 목록</a>
+    <h1>스쿼트 카운터</h1>
+    <p>무릎 각도로 앉았다 일어서는 동작을 세어요.</p>
+  </header>
+
+  <main>
+    <section class="stage" id="stage">
+      <video id="video" playsinline muted></video>
+      <canvas id="canvas"></canvas>
+      <div class="overlay" id="overlay">
+        <button class="primary" id="startBtn" type="button">카메라 켜고 시작하기</button>
+        <p id="overlayMsg">카메라 영상은 저장하거나 전송하지 않고, 이 컴퓨터 안에서만 처리해요.</p>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="count-row">
+        <div class="count" id="count">0</div>
+        <div class="count-side">
+          <span class="pill up" id="statePill">서 있음</span>
+          <label class="goal">목표 <input id="goal" type="number" min="1" max="200" value="10" /> 개</label>
+        </div>
+      </div>
+      <div class="goalbar"><div id="goalBar"></div></div>
+      <p class="goal-text" id="goalText">목표까지 10개</p>
+
+      <section class="gauge-box" aria-label="무릎 각도 게이지">
+        <div class="gauge-head"><span>지금 무릎 각도</span><b id="angle">–</b></div>
+        <div class="gauge">
+          <div class="zone down" id="downZone"></div>
+          <div class="zone up" id="upZone"></div>
+          <div class="needle" id="needle" hidden></div>
+        </div>
+        <div class="scale">
+          <span class="end">0°</span>
+          <span id="downLabel"></span>
+          <span id="upLabel"></span>
+        </div>
+        <p class="legend"><span><i class="down"></i>여기까지 내려가면 “앉음”</span><span><i class="up"></i>여기까지 올라오면 “1개”</span></p>
+      </section>
+
+      <p class="message" id="message" aria-live="polite"></p>
+      <div class="actions">
+        <button class="secondary" id="resetBtn" type="button">0으로 초기화</button>
+        <label class="toggle"><input id="sound" type="checkbox" /> 셀 때 소리 내기</label>
+      </div>
+      <p class="howto">카메라에 <b>옆모습</b>이 보이게 서면 가장 정확해요. 정면에서는 무릎이 카메라 쪽으로 접혀서 각도가 잘 안 보여요. 무릎과 발목이 안 보이면 세지 않고, 기준 각도는 <code>rules.js</code>에서 바꿀 수 있어요.</p>
+    </aside>
+  </main>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>집중 타이머 | MediaPipe 학교 앱</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <style>
+    :root {
+      --bg: #ebf2ef;
+      --panel: #ffffff;
+      --ink: #0f1f1a;
+      --muted: #587068;
+      --line: #d3e0da;
+      --accent: #13a07a;
+      --track: #dfe9e5;
+      --zone: #ffd6c2;
+      --away: #e3e8ed;
+      --away-ink: #4f5d6b;
+      --warn: #fff0c2;
+      --warn-ink: #8a5a00;
+      --bad: #e5484d;
+      --bad-soft: #fde2e3;
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      font-family: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    .top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; max-width: 1280px; margin: 0 auto; padding: 20px 24px 8px; }
+    .top a { color: var(--muted); text-decoration: none; font-size: 14px; }
+    .top h1 { margin: 0; font-size: 26px; letter-spacing: -0.02em; }
+    .top p { margin: 0; color: var(--muted); }
+    main { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 20px; max-width: 1280px; margin: 0 auto; padding: 12px 24px 32px; }
+    @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+    .stage { position: relative; align-self: start; aspect-ratio: 16 / 9; border-radius: var(--radius); overflow: hidden; background: #0c1714; }
+    .stage video, .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); /* 거울처럼 좌우 반전 */ }
+    .overlay { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 12px; padding: 24px; text-align: center; background: rgba(12, 23, 20, 0.8); color: #fff; }
+    .overlay p { margin: 0; max-width: 34em; color: #cfe0d9; font-size: 14px; }
+    button, select { font: inherit; }
+    button { cursor: pointer; }
+    .primary { padding: 14px 26px; border: 0; border-radius: 999px; background: var(--accent); color: #fff; font-size: 18px; font-weight: 700; }
+    .primary:disabled { opacity: 0.6; cursor: progress; }
+    .secondary { padding: 10px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--ink); font-weight: 600; }
+    button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+    .panel { display: flex; flex-direction: column; gap: 14px; padding: 22px; border: 2px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+    .alert .panel { border-color: var(--bad); animation: flash 1s steps(1) infinite; }
+    @keyframes flash { 50% { background: var(--bad-soft); } }
+    @media (prefers-reduced-motion: reduce) { .alert .panel { animation: none; background: var(--bad-soft); } }
+
+    .timer { position: relative; width: min(220px, 100%); margin: 0 auto; }
+    .timer svg { display: block; width: 100%; transform: rotate(-90deg); }
+    .timer circle { fill: none; stroke-width: 10; }
+    .timer .track { stroke: var(--track); }
+    .timer .ring { stroke: var(--accent); stroke-linecap: round; stroke-dasharray: 0 100; transition: stroke-dasharray 0.4s; }
+    .timer-text { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+    .timer-text b { font-size: 44px; line-height: 1.1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+    .timer-text span { color: var(--muted); font-size: 14px; }
+
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .row select { padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); }
+    .pill { padding: 4px 14px; border-radius: 999px; font-weight: 700; }
+    .pill.focus, .pill.done { background: #cdeee2; color: #0b7355; }
+    .pill.away { background: var(--away); color: var(--away-ink); }
+    .pill.distracted { background: var(--warn); color: var(--warn-ink); }
+    .pill.drowsy { background: var(--bad); color: #fff; }
+    .message { min-height: 3em; margin: 0; font-size: 16px; font-weight: 600; }
+
+    .sensors { display: grid; gap: 10px; padding: 14px; border-radius: 14px; background: var(--bg); }
+    .sensors h2 { margin: 0; font-size: 14px; color: var(--muted); letter-spacing: 0.02em; }
+    .sensor-head { display: flex; justify-content: space-between; font-size: 14px; }
+    .sensor-head b { font-variant-numeric: tabular-nums; }
+    .meter { position: relative; height: 16px; }
+    .meter .bar { position: absolute; inset: 4px 0; overflow: hidden; border-radius: 999px; background: #fff; }
+    .meter .zone { position: absolute; top: 0; bottom: 0; background: var(--zone); }
+    .meter .dot { position: absolute; top: 1px; width: 14px; height: 14px; margin-left: -7px; border: 2px solid #fff; border-radius: 50%; background: var(--ink); }
+    .legend { margin: 0; color: var(--muted); font-size: 13px; }
+    .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 4px; border-radius: 3px; background: var(--zone); vertical-align: -1px; }
+
+    .stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 0; }
+    .stats div { grid-column: span 2; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; }
+    .stats div:nth-child(-n + 2) { grid-column: span 3; }
+    .stats dt { color: var(--muted); font-size: 13px; }
+    .stats dd { margin: 0; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .toggle { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <a href="../">← 앱 목록</a>
+    <h1>집중 타이머</h1>
+    <p>자리에 앉아 화면이나 책을 보는 동안만 시간이 흘러요.</p>
+  </header>
+
+  <main>
+    <section class="stage" id="stage">
+      <video id="video" playsinline muted></video>
+      <canvas id="canvas"></canvas>
+      <div class="overlay" id="overlay">
+        <button class="primary" id="startBtn" type="button">카메라 켜고 시작하기</button>
+        <p id="overlayMsg">카메라 영상은 저장하거나 전송하지 않고, 이 컴퓨터 안에서만 처리해요.</p>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="timer">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="track" cx="60" cy="60" r="52" />
+          <circle class="ring" id="ring" cx="60" cy="60" r="52" pathLength="100" />
+        </svg>
+        <div class="timer-text"><b id="time">00:00</b><span>집중한 시간</span></div>
+      </div>
+
+      <div class="row">
+        <span class="pill focus" id="status">집중 중</span>
+        <label>목표
+          <select id="goalSelect">
+            <option value="1">1분 (체험)</option>
+            <option value="10">10분</option>
+            <option value="25" selected>25분</option>
+            <option value="50">50분</option>
+          </select>
+        </label>
+      </div>
+      <p class="message" id="message" aria-live="polite"></p>
+
+      <section class="sensors">
+        <h2>AI가 지금 보고 있는 숫자</h2>
+        <div>
+          <div class="sensor-head"><span>눈 감음 점수</span><b id="eyesValue">–</b></div>
+          <div class="meter"><div class="bar"><div class="zone" id="eyesZone"></div></div><div class="dot" id="eyesDot" hidden></div></div>
+        </div>
+        <div>
+          <div class="sensor-head"><span>고개 좌우 (0.5 = 정면)</span><b id="turnValue">–</b></div>
+          <div class="meter"><div class="bar"><div class="zone" id="turnZoneLeft"></div><div class="zone" id="turnZoneRight"></div></div><div class="dot" id="turnDot" hidden></div></div>
+        </div>
+        <div>
+          <div class="sensor-head"><span>고개 숙임 (클수록 숙임)</span><b id="tiltValue">–</b></div>
+          <div class="meter"><div class="bar"><div class="zone" id="tiltZone"></div></div><div class="dot" id="tiltDot" hidden></div></div>
+        </div>
+        <p class="legend"><i></i>점이 색칠된 구간에 몇 초 이상 머물면 상태가 바뀌어요.</p>
+      </section>
+
+      <dl class="stats">
+        <div><dt>전체 시간</dt><dd id="total">00:00</dd></div>
+        <div><dt>집중률</dt><dd id="rate">–</dd></div>
+        <div><dt>자리 비움</dt><dd><span id="awayCount">0</span>회</dd></div>
+        <div><dt>딴 곳 보기</dt><dd><span id="distractedCount">0</span>회</dd></div>
+        <div><dt>졸음</dt><dd><span id="drowsyCount">0</span>회</dd></div>
+      </dl>
+
+      <div class="actions">
+        <button class="secondary" id="resetBtn" type="button">새로 시작</button>
+        <label class="toggle"><input id="sound" type="checkbox" checked /> 소리 알림</label>
+      </div>
+    </aside>
+  </main>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

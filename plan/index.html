@@ -1,0 +1,851 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>AI 탐구 앱 기획안</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" />
+<style>
+  :root {
+    --bg: #f2f5f8;
+    --panel: #ffffff;
+    --soft: #e9eef4;
+    --ink: #121a26;
+    --muted: #566273;
+    --line: #d9e0e8;
+    --dot: #f0562e;
+    --bone: #9aa9bb;
+    --health: #d13f63;
+    --env: #0f8f68;
+    --learn: #2d5fe0;
+    --read: #8248d0;
+    --warn-bg: #fff5e0;
+    --warn-ink: #7a4b00;
+    --shadow: 0 10px 28px rgba(18, 26, 38, 0.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e131a;
+      --panel: #161d27;
+      --soft: #1e2733;
+      --ink: #e7ecf2;
+      --muted: #9ba7b6;
+      --line: #2a3441;
+      --dot: #ff7a55;
+      --bone: #56657a;
+      --health: #f27b98;
+      --env: #3cc79a;
+      --learn: #7f9fff;
+      --read: #b98cf2;
+      --warn-bg: #2d2413;
+      --warn-ink: #f2cc85;
+      --shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e131a;
+    --panel: #161d27;
+    --soft: #1e2733;
+    --ink: #e7ecf2;
+    --muted: #9ba7b6;
+    --line: #2a3441;
+    --dot: #ff7a55;
+    --bone: #56657a;
+    --health: #f27b98;
+    --env: #3cc79a;
+    --learn: #7f9fff;
+    --read: #b98cf2;
+    --warn-bg: #2d2413;
+    --warn-ink: #f2cc85;
+    --shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; }
+  h1, h2, h3 { font-family: "Do Hyeon", "IBM Plex Sans KR", "Malgun Gothic", sans-serif; font-weight: 400; letter-spacing: -0.01em; line-height: 1.25; text-wrap: balance; margin: 0; }
+  p { margin: 0; }
+  a { color: var(--learn); }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+  .label { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-size: 12.5px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); }
+  :focus-visible { outline: 3px solid var(--learn); outline-offset: 3px; border-radius: 6px; }
+
+  /* ── 머리말 ── */
+  header.hero { padding-block: 56px 36px; }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 32px; align-items: center; }
+  .hero h1 { font-size: clamp(34px, 6vw, 56px); margin-block: 10px 16px; }
+  .hero .lead { font-size: 18px; color: var(--muted); max-width: 36em; }
+  .hero-stats { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 24px; }
+  .hero-stats div { display: flex; align-items: baseline; gap: 6px; }
+  .hero-stats b { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-size: 28px; font-variant-numeric: tabular-nums; }
+  .hero-stats span { color: var(--muted); }
+  .hand { width: 100%; max-width: 220px; justify-self: center; }
+  .hand line { stroke: var(--bone); stroke-width: 3; stroke-linecap: round; }
+  .hand circle { fill: var(--dot); }
+  .hand text { fill: var(--muted); font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-size: 11px; }
+
+  /* ── 목차 ── */
+  nav.toc { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .toc ul { list-style: none; display: flex; gap: 6px; margin: 0 auto; padding: 10px 20px; max-width: 1040px; overflow-x: auto; scrollbar-width: none; }
+  .toc a { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; padding: 6px 12px; border-radius: 999px; color: var(--ink); text-decoration: none; font-size: 14.5px; font-weight: 500; }
+  .toc a:hover { background: var(--soft); }
+  .toc i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+
+  /* ── 공통 섹션 ── */
+  section.block { padding-block: 48px 8px; }
+  .block > h2 { font-size: clamp(26px, 4vw, 34px); margin-bottom: 8px; }
+  .block > .sub { color: var(--muted); max-width: 40em; margin-bottom: 24px; }
+
+  .tech { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .tech article { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+  .tech article.core { grid-column: span 4; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; box-shadow: var(--shadow); }
+  .tech h3 { font-size: 22px; }
+  .tech p { color: var(--muted); font-size: 15px; }
+  .pill { align-self: flex-start; font-size: 12.5px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--soft); color: var(--muted); }
+  .pill.must { background: color-mix(in srgb, var(--dot) 16%, var(--panel)); color: var(--dot); }
+  .counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-content: center; }
+  .counts div { background: var(--soft); border-radius: 12px; padding: 12px; text-align: center; }
+  .counts b { display: block; font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-size: 30px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .counts span { font-size: 13.5px; color: var(--muted); }
+
+  .pairing { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+  .pairing div { border: 1px dashed var(--line); border-radius: 14px; padding: 16px; }
+  .pairing b { display: block; margin-bottom: 4px; }
+  .pairing p { color: var(--muted); font-size: 15px; }
+
+  ol.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; counter-reset: s; }
+  ol.steps li { counter-increment: s; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; font-size: 15px; }
+  ol.steps li::before { content: counter(s); display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; margin-bottom: 8px; background: var(--ink); color: var(--bg); font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-weight: 600; font-size: 14px; }
+  ol.steps b { display: block; }
+  ol.steps span { color: var(--muted); font-size: 14px; }
+
+  .try { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .try a { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--ink); text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; }
+  .try a:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .try b { font-size: 17px; }
+  .try span { color: var(--muted); font-size: 14.5px; }
+  .try em { font-style: normal; color: var(--learn); font-weight: 700; font-size: 14px; margin-top: 4px; }
+
+  /* ── 분야 ── */
+  section.field { padding-block: 56px 8px; }
+  .field-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: end; padding-bottom: 18px; margin-bottom: 18px; border-bottom: 2px solid var(--c); }
+  .field-head .label { color: var(--c); }
+  .field-head h2 { font-size: clamp(30px, 5vw, 42px); margin-block: 4px 6px; }
+  .field-head p { color: var(--muted); max-width: 40em; }
+  .field-head .folder { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-size: 13px; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; white-space: nowrap; }
+  .apps { display: flex; flex-direction: column; gap: 14px; }
+
+  .app { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px; }
+  .app-head { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 16px; align-items: start; }
+  .emoji { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 28px; background: color-mix(in srgb, var(--c) 13%, var(--panel)); }
+  .app h3 { font-size: 25px; }
+  .app h3 small { font-family: "IBM Plex Sans KR", "Malgun Gothic", sans-serif; font-size: 14px; color: var(--muted); font-weight: 500; margin-left: 6px; }
+  .one { color: var(--muted); margin-top: 2px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 500; padding: 3px 10px; border-radius: 999px; background: var(--soft); color: var(--ink); }
+  .chip.mp { background: color-mix(in srgb, var(--dot) 14%, var(--panel)); color: var(--dot); font-weight: 700; }
+  .chip.lv { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; letter-spacing: 0.04em; color: var(--c); background: color-mix(in srgb, var(--c) 12%, var(--panel)); }
+
+  .pick { font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--panel); color: var(--muted); transition: background 0.15s, color 0.15s, border-color 0.15s; }
+  .pick:hover { border-color: var(--c); color: var(--c); }
+  .pick[aria-pressed="true"] { background: var(--c); border-color: var(--c); color: var(--panel); }
+
+  details.more { margin-top: 14px; border-top: 1px solid var(--line); }
+  details.more > summary { cursor: pointer; list-style: none; padding-top: 12px; font-weight: 700; font-size: 15px; color: var(--c); display: inline-flex; align-items: center; gap: 6px; }
+  details.more > summary::-webkit-details-marker { display: none; }
+  details.more > summary::after { content: "▾"; transition: transform 0.2s; }
+  details.more[open] > summary::after { transform: rotate(180deg); }
+  details.more[open] > summary .closed { display: none; }
+  details.more:not([open]) > summary .opened { display: none; }
+
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 32px; margin-top: 16px; }
+  .grid .wide { grid-column: 1 / -1; }
+  .grid h4 { margin: 0 0 6px; font-size: 13px; font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-weight: 600; letter-spacing: 0.06em; color: var(--c); }
+  .grid p, .grid li { font-size: 15.5px; }
+  .grid ul { margin: 0; padding-left: 1.2em; }
+  .grid li + li { margin-top: 3px; }
+  ol.flow { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; counter-reset: f; }
+  ol.flow li { counter-increment: f; position: relative; flex: 1 1 170px; background: var(--soft); border-radius: 10px; padding: 10px 12px 10px 40px; font-size: 14.5px; line-height: 1.55; }
+  ol.flow li::before { content: counter(f); position: absolute; left: 11px; top: 10px; width: 21px; height: 21px; border-radius: 50%; display: grid; place-items: center; background: var(--c); color: var(--panel); font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-size: 12px; font-weight: 600; }
+  ol.flow b { color: var(--ink); }
+  .note { background: var(--warn-bg); color: var(--warn-ink); border-radius: 10px; padding: 10px 14px; font-size: 15px; }
+  .decide li::marker { content: "? "; color: var(--c); font-weight: 700; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-top: 28px; }
+  .btn { font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; padding: 9px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+  .btn:hover { background: var(--soft); }
+  .btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: var(--muted); }
+  .legend b { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; color: var(--ink); font-weight: 600; margin-right: 4px; }
+
+  /* ── 추가 후보, 약속, 준비물 ── */
+  .extra { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .extra div { background: var(--panel); border: 1px dashed var(--line); border-radius: 14px; padding: 16px; }
+  .extra b { display: block; font-size: 16px; }
+  .extra span { color: var(--muted); font-size: 14.5px; }
+
+  .promise { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .promise div { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 10px; }
+  .promise .ic { font-size: 22px; grid-row: span 2; }
+  .promise b { font-size: 16.5px; }
+  .promise span { color: var(--muted); font-size: 15px; }
+
+  .needs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .needs div { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+  .needs h3 { font-size: 20px; margin-bottom: 6px; }
+  .needs ul { margin: 0; padding-left: 1.2em; color: var(--muted); font-size: 15px; }
+
+  /* ── 의견 ── */
+  .talk { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
+  .panel h3 { font-size: 22px; margin-bottom: 10px; }
+  .panel ol { margin: 0; padding-left: 1.3em; }
+  .panel ol li + li { margin-top: 6px; }
+  .picked { list-style: none; padding: 0; margin: 0 0 14px; display: flex; flex-direction: column; gap: 6px; }
+  .picked li { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; background: var(--soft); }
+  .picked li b { color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-weight: 600; }
+  .picked .empty { color: var(--muted); background: transparent; border: 1px dashed var(--line); }
+  label.f { display: block; font-weight: 700; font-size: 15px; margin: 12px 0 6px; }
+  textarea { width: 100%; min-height: 84px; resize: vertical; font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+  #status { color: var(--muted); font-size: 14px; }
+
+  ol.road { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; counter-reset: r; }
+  ol.road li { counter-increment: r; display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; align-items: start; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+  ol.road li::before { content: counter(r); display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--soft); font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-weight: 600; }
+  ol.road li.now::before { background: var(--dot); color: var(--panel); }
+  ol.road b { display: block; }
+  ol.road span { color: var(--muted); font-size: 15px; }
+
+  footer { margin-top: 64px; padding-block: 28px 48px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+
+  @media (max-width: 860px) {
+    .tech { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .tech article.core { grid-column: span 2; grid-template-columns: minmax(0, 1fr); }
+    ol.steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .extra { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .talk { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 640px) {
+    header.hero { padding-block: 36px 24px; }
+    .hero-grid { grid-template-columns: minmax(0, 1fr); }
+    .hand { max-width: 150px; justify-self: start; order: -1; }
+    .tech, .pairing, .try, .promise, .needs { grid-template-columns: minmax(0, 1fr); }
+    .tech article.core { grid-column: auto; }
+    ol.steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .field-head { grid-template-columns: minmax(0, 1fr); }
+    .field-head .folder { justify-self: start; }
+    .app { padding: 18px 16px; }
+    .app-head { grid-template-columns: 44px minmax(0, 1fr); gap: 12px; }
+    .emoji { width: 44px; height: 44px; font-size: 24px; border-radius: 12px; }
+    .pick { grid-column: 1 / -1; justify-self: start; }
+    .grid { grid-template-columns: minmax(0, 1fr); }
+    .extra { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .try a, .pick, details.more > summary::after { transition: none; }
+    .try a:hover { transform: none; }
+  }
+  @media print {
+    nav.toc, .pick, .toolbar, #talk .row { display: none; }
+    .app { break-inside: avoid; }
+  }
+</style>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="label">MEDIAPIPE × 탐구 × 게임 · 함께 만드는 기획안</p>
+      <h1>우리가 만들 AI 탐구 앱</h1>
+      <p class="lead">카메라 속 손·몸·얼굴을 읽는 구글 <b>MediaPipe</b>로 앱을 만들고, 그 앱으로 우리 생활의 궁금증을 직접 탐구해요. 네 분야 15개 프로젝트를 읽어 보고 <b>해 보고 싶은 것 3개</b>를 골라 의견을 들려주세요.</p>
+      <div class="hero-stats">
+        <div><b>4</b><span>분야</span></div>
+        <div><b>15</b><span>프로젝트</span></div>
+        <div><b>4</b><span>추가 후보</span></div>
+      </div>
+    </div>
+    <svg class="hand" id="hand" viewBox="0 0 200 230" role="img" aria-label="MediaPipe가 찾는 손의 점 21개"></svg>
+  </div>
+</header>
+
+<nav class="toc" aria-label="목차">
+  <ul id="toc">
+    <li><a href="#tech">기술</a></li>
+    <li><a href="#process">진행 방법</a></li>
+    <li><a href="#try">체험</a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+  <section class="block" id="tech">
+    <h2>무엇으로 만드나요?</h2>
+    <p class="sub">모든 프로젝트에 MediaPipe가 들어가요. 여기에 데이터 수집, 티처블 머신, 게임 중에서 프로젝트에 맞는 것을 골라 더해요.</p>
+    <div class="tech">
+      <article class="core">
+        <div>
+          <span class="pill must">꼭 들어가요</span>
+          <h3>구글 MediaPipe</h3>
+          <p>카메라 영상에서 손, 몸, 얼굴의 <b>점(랜드마크)</b>을 1초에 수십 번 찾아 주는 구글의 AI 도구예요. 점의 위치로 각도나 거리를 계산하면 "손을 들었다", "고개를 숙였다"를 알 수 있어요. 계산은 모두 <b>내 브라우저 안에서</b> 하기 때문에 영상이 밖으로 나가지 않아요.</p>
+        </div>
+        <div class="counts">
+          <div><b>21</b><span>손의 점</span></div>
+          <div><b>33</b><span>몸의 점</span></div>
+          <div><b>478</b><span>얼굴의 점</span></div>
+        </div>
+      </article>
+      <article>
+        <span class="pill">선택</span>
+        <h3>📊 데이터 수집</h3>
+        <p>측정한 숫자를 표로 모아 그래프로 봐요. CSV 파일로 내보내 구글 시트에서 더 분석할 수 있어요.</p>
+      </article>
+      <article>
+        <span class="pill">선택</span>
+        <h3>🧠 티처블 머신</h3>
+        <p>사진을 보여 주며 AI를 가르치는 구글 웹사이트예요. 코딩 없이 몇 분이면 학습돼요. "이게 캔인지 페트병인지"처럼 규칙으로 쓰기 어려운 판단을 맡아요.</p>
+      </article>
+      <article>
+        <span class="pill">선택</span>
+        <h3>🎮 게임</h3>
+        <p>점수, 레벨, 배지, 협동 미션을 넣어요. 재미있어서 여러 번 하게 되고, <b>한 판 한 판이 실험 기록</b>이 돼요.</p>
+      </article>
+      <article>
+        <span class="pill">선택</span>
+        <h3>🗂️ 난이도</h3>
+        <p><b class="mono">●○○</b> 측정과 분석<br /><b class="mono">●●○</b> 티처블 머신 학습 추가<br /><b class="mono">●●●</b> 여러 기능 조합</p>
+      </article>
+    </div>
+    <div class="pairing" aria-label="MediaPipe와 티처블 머신을 함께 쓰는 방법">
+      <div><b>✂️ 잘라서 보기</b><p>MediaPipe가 손이나 얼굴 위치를 찾고, 그 부분만 잘라 티처블 머신에 보여 줘요. 배경이 달라도 잘 맞혀요.</p></div>
+      <div><b>🦴 뼈대 그림</b><p>MediaPipe의 점을 검은 화면에 선으로 그려서 보여 줘요. 얼굴과 옷이 AI에 들어가지 않아 개인정보도 지켜요.</p></div>
+      <div><b>🤝 역할 나누기</b><p>티처블 머신은 "무엇인지", MediaPipe는 "어떻게 움직이는지"를 맡아 함께 판단해요.</p></div>
+    </div>
+  </section>
+
+  <section class="block" id="process">
+    <h2>프로젝트는 이렇게 진행돼요</h2>
+    <p class="sub">어떤 프로젝트를 고르든 과학자처럼 질문에서 시작해 데이터로 답을 찾아요.</p>
+    <ol class="steps">
+      <li><b>질문하기</b><span>생활 속 궁금증 찾기</span></li>
+      <li><b>가설 세우기</b><span>결과를 미리 예상하기</span></li>
+      <li><b>AI 준비하기</b><span>규칙 정하기, 티처블 머신 학습</span></li>
+      <li><b>게임하며 측정</b><span>여러 번 해서 데이터 모으기</span></li>
+      <li><b>데이터 분석</b><span>표와 그래프로 확인</span></li>
+      <li><b>결론 나누기</b><span>발표하고 앱 개선하기</span></li>
+    </ol>
+  </section>
+
+  <section class="block" id="try">
+    <h2>먼저 체험해 보세요</h2>
+    <p class="sub">MediaPipe로 이미 만들어 둔 앱이에요. 직접 써 보면 어떤 프로젝트가 가능할지 감이 와요. 카메라 권한을 <b>허용</b>해 주세요.</p>
+    <div class="try">
+      <a href="../project1/finger-quiz/"><b>☝️ 손가락 퀴즈</b><span>정답 번호만큼 손가락을 펴서 답해요 · 손의 점 21개</span><em>열기 →</em></a>
+      <a href="../project1/squat-counter/"><b>🏋️ 스쿼트 카운터</b><span>무릎 각도로 스쿼트 개수를 세요 · 몸의 점 33개</span><em>열기 →</em></a>
+      <a href="../project1/focus-timer/"><b>⏱️ 집중 타이머</b><span>화면을 보며 집중할 때만 시간이 흘러요 · 얼굴의 점 478개</span><em>열기 →</em></a>
+    </div>
+  </section>
+
+  <div class="toolbar">
+    <div class="legend" aria-label="난이도 안내">
+      <span><b>●○○</b>입문</span><span><b>●●○</b>중급</span><span><b>●●●</b>심화</span>
+    </div>
+    <button type="button" class="btn" id="toggleAll">모든 프로젝트 자세히 펼치기</button>
+  </div>
+
+  <div id="fields"></div>
+
+  <section class="block" id="extra">
+    <h2>이런 아이디어도 있어요</h2>
+    <p class="sub">아직 자세히 정하지 않은 추가 후보예요. 해 보고 싶다면 의견에 적어 주세요.</p>
+    <div class="extra">
+      <div><b>🤟 수어·지문자 배우기 게임</b><span>손 모양을 AI가 확인해 주는 수어 연습 · 학습·배려</span></div>
+      <div><b>🥽 과학실 보안경 체크</b><span>보안경을 써야 실험 타이머가 시작돼요 · 보건·안전</span></div>
+      <div><b>💡 교실 에너지 지킴이</b><span>빈 교실을 알아채 소등을 알리고 사용 시간 기록 · 환경</span></div>
+      <div><b>🪢 리듬 줄넘기</b><span>음악 박자에 맞춰 뛰었는지 판정 · 보건·체육</span></div>
+    </div>
+  </section>
+
+  <section class="block" id="needs">
+    <h2>공통으로 필요한 것</h2>
+    <p class="sub">프로젝트별 준비물은 각 카드의 "필요한 것"에 따로 적어 두었어요.</p>
+    <div class="needs">
+      <div><h3>💻 기기</h3><ul><li>카메라가 달린 노트북이나 크롬북 (크롬·엣지 최신 버전)</li><li>생물 도감은 스마트폰이나 태블릿</li><li>밝은 조명, 카메라 앞 여유 공간</li></ul></div>
+      <div><h3>🌐 인터넷</h3><ul><li>앱을 처음 열 때 AI 프로그램과 모델(4~8MB)을 내려받아요</li><li>학교망에서 <span class="mono">cdn.jsdelivr.net</span>, <span class="mono">storage.googleapis.com</span>에 접속할 수 있어야 해요</li></ul></div>
+      <div><h3>🧠 티처블 머신</h3><ul><li><span class="mono">teachablemachine.withgoogle.com</span> (설치 없이 웹에서)</li><li>여러 사람, 여러 조명, 여러 각도의 학습 데이터</li></ul></div>
+      <div><h3>👥 팀 역할</h3><ul><li>데이터 담당: 촬영하고 정리하기</li><li>설계 담당: 규칙과 게임 정하기</li><li>분석 담당: 그래프 해석하고 발표하기</li></ul></div>
+    </div>
+  </section>
+
+  <section class="block" id="promise">
+    <h2>우리의 약속</h2>
+    <p class="sub">모두가 안심하고 즐겁게 참여하기 위한 약속이에요.</p>
+    <div class="promise">
+      <div><span class="ic">🔒</span><b>영상은 저장하지 않아요</b><span>앱은 숫자만 기록해요. 티처블 머신 학습용 사진은 학습에만 쓰고 인터넷에 올리지 않으며, 끝나면 지워요.</span></div>
+      <div><span class="ic">🔢</span><b>이름 대신 번호</b><span>기록에는 이름을 쓰지 않아요. 결과는 반 전체 통계로 나눠요.</span></div>
+      <div><span class="ic">🏅</span><b>노력과 협동으로 겨뤄요</b><span>키, 몸, 독서 속도처럼 타고나거나 경쟁하면 안 되는 것은 순위를 만들지 않아요. 개인 최고 기록과 반 전체 목표로 겨뤄요.</span></div>
+      <div><span class="ic">🙋</span><b>원하지 않으면 카메라 없이</b><span>카메라에 나오기 싫다면 데이터 분석이나 게임 설계를 맡으면 돼요.</span></div>
+      <div><span class="ic">🤔</span><b>AI도 틀릴 수 있어요</b><span>AI 결과를 그대로 믿지 않고, 왜 틀렸는지 확인하는 것도 탐구예요.</span></div>
+      <div><span class="ic">🧑‍🤝‍🧑</span><b>다양한 데이터로 공정하게</b><span>한 사람 데이터로만 학습하면 다른 친구에게는 잘 안 돼요. 여러 친구의 데이터를 모아요.</span></div>
+    </div>
+  </section>
+
+  <section class="block" id="talk">
+    <h2>함께 이야기해요</h2>
+    <p class="sub">프로젝트 카드의 <b>☆ 해 보고 싶어요</b> 버튼으로 3개까지 고르고, 이유와 아이디어를 적어 보세요. <b>의견 복사하기</b>를 누르면 선생님이 알려 준 곳(구글 폼, 패들렛 등)에 붙여 넣을 수 있어요.</p>
+    <div class="talk">
+      <div class="panel">
+        <h3>내가 고른 프로젝트</h3>
+        <ul class="picked" id="picked"></ul>
+        <label class="f" for="reason">고른 이유, 바꾸고 싶은 점</label>
+        <textarea id="reason" placeholder="예) 손 씻기 코치: 급식 전에 쓰면 좋겠어요. 단계마다 효과음이 나오면 재밌을 것 같아요."></textarea>
+        <label class="f" for="idea">새로운 프로젝트 아이디어 (선택)</label>
+        <textarea id="idea" placeholder="예) 급식실 줄 서기 거리 두기 알림"></textarea>
+        <div class="row">
+          <button type="button" class="btn primary" id="copy">의견 복사하기</button>
+          <span id="status" role="status"></span>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>토론 질문</h3>
+        <ol>
+          <li>우리 학교나 우리 반에 가장 필요한 프로젝트는 무엇일까요? 그 이유는?</li>
+          <li>게임 요소가 오히려 방해가 되는 프로젝트가 있을까요?</li>
+          <li>카메라를 쓰는 앱에서 친구들이 불편하지 않으려면 어떤 규칙이 더 필요할까요?</li>
+          <li>AI가 틀렸을 때 어떻게 알아챌 수 있을까요?</li>
+          <li>여기 없는 분야(체육, 안전, 음악 등)에서 해 보고 싶은 것이 있나요?</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="road">
+    <h2>앞으로의 계획</h2>
+    <p class="sub">여러분의 의견에 따라 순서와 프로젝트가 바뀔 수 있어요.</p>
+    <ol class="road">
+      <li class="now"><div><b>의견 모으기 (지금)</b><span>기획안을 읽고 해 보고 싶은 프로젝트와 아이디어 내기</span></div></li>
+      <li><div><b>프로젝트 고르기, 팀 만들기</b><span>의견을 모아 할 프로젝트를 정하고 역할 나누기</span></div></li>
+      <li><div><b>공통 기능 만들기</b><span>카메라, 티처블 머신 모델 올리기, 데이터 기록, 점수·배지</span></div></li>
+      <li><div><b>분야별 앱 만들고 탐구하기</b><span>보건 → 환경 → 학습 → 독서 순서로 (선택 결과에 따라 바뀔 수 있어요)</span></div></li>
+      <li><div><b>탐구 발표회</b><span>데이터로 알아낸 것과 앱 개선 아이디어 나누기</span></div></li>
+    </ol>
+  </section>
+
+  <footer>
+    MediaPipe 학교 탐구 앱 기획안 · 모든 AI 계산은 브라우저 안에서 이루어지며 영상은 저장하거나 전송하지 않습니다.
+  </footer>
+</main>
+
+<script>
+  // 선생님이 의견 받을 주소(구글 폼, 패들렛 등)를 넣으면 "의견 보내러 가기" 버튼이 생겨요.
+  const FEEDBACK_URL = "";
+
+  const OPT = { data: "📊 데이터", tm: "🧠 티처블 머신", game: "🎮 게임" };
+
+  const FIELDS = [
+    {
+      id: "health", name: "보건", color: "var(--health)", folder: "project2",
+      title: "내 몸을 지키는 습관",
+      intro: "손 씻기, 스트레칭, 눈과 자세처럼 매일 하지만 제대로 하기는 어려운 건강 습관을 AI 코치와 함께 만들어요.",
+      apps: [
+        {
+          id: "handwash", emoji: "🧼", name: "손 씻기 6단계 코치", level: 2, mp: "손", opts: ["data", "tm", "game"],
+          one: "손 씻는 동작을 하면 AI가 6단계를 하나씩 확인해 주는 코치",
+          why: "손 씻기는 감염병을 막는 가장 쉬운 방법이에요. 그런데 대부분 손바닥만 비비고 끝내서 손등, 손가락 사이, 엄지, 손톱 밑을 자주 빠뜨려요. 질병관리청은 비누로 30초 이상, 6단계로 씻기를 권해요.",
+          flow: ["<b>MediaPipe</b>가 두 손을 찾아 그 부분만 잘라요", "<b>티처블 머신</b>이 지금 몇 단계 동작인지 판단해요", "한 단계를 5초 채우면 체크 표시", "단계별 시간과 빠뜨린 단계를 기록해요"],
+          game: "6단계를 모두 채우면 '완벽한 손 씻기' 배지를 받아요. 빠뜨린 단계 없이 연속 성공하면 기록이 올라가요.",
+          questions: ["우리 반이 가장 많이 빠뜨리는 단계는 무엇일까?", "한 단계에 평균 몇 초를 쓸까?", "코치를 쓰기 전과 후에 손 씻는 시간이 달라질까?"],
+          tasks: ["6단계 동작을 여러 친구의 손으로 촬영해 티처블 머신 학습", "'몇 초 유지하면 통과'인지 기준 정하기", "모은 기록을 그래프로 분석하기"],
+          needs: ["웹캠 노트북", "티처블 머신", "손 크기, 피부색, 소매가 다양한 학습 사진"],
+          decide: ["교실에서 연습용으로 쓸까, 세면대 근처에서 쓸까?", "한 단계에 몇 초가 적당할까?"],
+          note: "기기는 물이 튀지 않는 곳에 두어요. 교실에서 물 없이 동작만 연습해도 충분해요."
+        },
+        {
+          id: "stretch", emoji: "🧘", name: "스트레칭 자세 코치", level: 2, mp: "몸", opts: ["data", "tm", "game"],
+          one: "쉬는 시간에 스트레칭 동작을 AI가 알아보고 시간을 재 주는 코치",
+          why: "오래 앉아 있으면 목, 어깨, 허리가 뻐근해져요. 스트레칭이 좋은 건 알지만 혼자 하면 금방 대충 하게 되죠. 동작을 확인해 주고 시간을 재 주는 코치가 있으면 끝까지 할 수 있어요.",
+          flow: ["<b>MediaPipe</b>가 몸의 점 33개를 찾아 검은 화면에 뼈대만 그려요", "<b>티처블 머신</b>이 뼈대 그림을 보고 어떤 동작인지 판단해요", "동작마다 10초 유지하면 다음 동작 안내", "동작별 유지 시간과 참여 날짜를 기록해요"],
+          game: "루틴을 완주하면 도장을 받아요. 연속 참여일을 기록하고, 반 전체 완주 횟수 목표에 함께 도전해요.",
+          questions: ["뼈대 그림으로 학습한 AI는 옷이 달라도 잘 맞힐까? 사진으로 학습한 AI와 비교하면?", "가장 오래 버티기 어려운 동작은 무엇일까?"],
+          tasks: ["스트레칭 루틴 4~5개 동작 고르기 (체육·보건 선생님께 조언 구하기)", "동작별 뼈대 그림 데이터 모으기", "동작마다 유지 시간 기준 정하기"],
+          needs: ["웹캠 노트북", "상반신 또는 전신이 나오는 공간", "티처블 머신"],
+          decide: ["앉아서 하는 루틴과 서서 하는 루틴 중 무엇이 좋을까?", "음악이나 구령을 넣을까?"],
+          note: "사진 대신 뼈대 그림을 쓰니 얼굴, 옷, 배경이 AI에 들어가지 않아요."
+        },
+        {
+          id: "eye", emoji: "👁️", name: "눈 건강 수호대", level: 1, mp: "얼굴", opts: ["data", "game"],
+          one: "게임하는 동안 몰래 눈 깜빡임을 세고, 끝나면 결과를 공개하는 눈 건강 실험",
+          why: "사람은 보통 1분에 15~20번쯤 눈을 깜빡이는데, 화면에 집중하면 깜빡임이 크게 줄어든다고 알려져 있어요. 그래서 눈이 건조하고 쉽게 피로해져요. 정말 그런지 우리 데이터로 확인해 봐요.",
+          flow: ["<b>MediaPipe</b>가 얼굴의 점과 '눈 감김 점수'를 계산해요", "점수가 기준을 넘었다가 내려오면 깜빡임 1번", "활동별로 1분당 깜빡임 횟수를 기록해요", "활동끼리 그래프로 비교해요"],
+          game: "느긋한 퍼즐 3분, 빠른 게임 3분을 하고 나면 \"사실 눈을 측정하고 있었어요!\" 하고 결과를 공개해요. 이어서 멀리 보기, 눈으로 별 따라가기 같은 눈 휴식 미니게임을 해요.",
+          questions: ["화면 게임, 종이책 읽기, 친구와 대화 중 깜빡임이 가장 적은 활동은?", "몰입할수록 덜 깜빡일까?", "쉬고 나면 깜빡임이 다시 늘어날까?"],
+          tasks: ["비교할 활동 정하기", "깜빡임으로 셀 기준값 정하기 (안경 쓴 친구도 잘 되는지 확인)", "그래프를 보고 눈 건강 규칙 만들기"],
+          needs: ["웹캠 노트북", "밝고 고른 조명", "비교할 활동 자료 (책, 퍼즐 등)"],
+          decide: ["어떤 활동끼리 비교해 볼까?", "눈 휴식 미니게임은 어떤 게 좋을까?"],
+          note: "측정하는 동안에는 깜빡임을 점수로 쓰지 않아요. 의식하면 자연스러운 깜빡임이 측정되지 않거든요."
+        },
+        {
+          id: "posture", emoji: "🐣", name: "자세 펫 키우기", level: 3, mp: "몸", opts: ["data", "tm", "game"],
+          one: "바른 자세로 공부하면 화면 속 펫이 자라는 자세 습관 게임",
+          why: "책상에서 고개를 숙이다 보면 목이 앞으로 빠지는 '거북목'이 되기 쉬워요. 자세는 스스로 알아차리기 어려워서 누군가 알려 주는 게 필요해요.",
+          flow: ["<b>MediaPipe</b>가 상반신 점을 찾아 뼈대 그림으로 그려요", "<b>티처블 머신</b>이 바른 자세, 거북목, 턱 괴기, 엎드림을 판단해요", "10초마다 자세를 기록해요", "바른 자세면 펫이 밥을 먹고 자라요"],
+          game: "펫이 알 → 아기 → 어른으로 자라요. 거북목이 오래가면 펫도 시무룩해져요. 반 전체의 바른 자세 시간을 합쳐 '학급 펫'도 함께 키워요.",
+          questions: ["공부를 시작하고 몇 분쯤 자세가 무너질까?", "펫이 있을 때와 없을 때 바른 자세 비율이 달라질까?", "책 받침대를 쓰면 자세가 좋아질까?"],
+          tasks: ["자세 4가지 뼈대 그림 데이터 모으기", "펫 캐릭터와 성장 규칙 디자인하기", "알림을 언제 줄지 정하기", "펫이 있을 때와 없을 때를 비교하는 실험 설계하기"],
+          needs: ["상반신이 보이도록 둔 웹캠", "티처블 머신", "직접 그린 펫 그림"],
+          decide: ["펫은 어떤 캐릭터로 할까?", "알림은 소리가 좋을까, 화면 표시가 좋을까?"]
+        }
+      ]
+    },
+    {
+      id: "env", name: "환경", color: "var(--env)", folder: "project3",
+      title: "우리 학교를 바꾸는 행동",
+      intro: "분리배출, 급식 잔반, 교내 생물처럼 우리 학교에서 매일 일어나는 환경 문제를 데이터로 살펴보고 바꿔 봐요.",
+      apps: [
+        {
+          id: "recycle", emoji: "♻️", name: "분리배출 도우미", level: 3, mp: "손", opts: ["data", "tm", "game"],
+          one: "손에 든 쓰레기를 AI가 알아보고, 맞는 분리수거함으로 옮기는 게임",
+          why: "분리배출을 잘못하면 재활용할 수 있는 것도 쓰레기가 돼요. 특히 라벨 붙은 페트병, 과자 봉지, 코팅된 종이컵처럼 헷갈리는 품목이 문제예요.",
+          flow: ["<b>MediaPipe</b>가 손을 찾고 손 주변을 넓게 잘라요", "<b>티처블 머신</b>이 손에 든 물건 종류를 판단해요", "화면 속 분리수거함 중 맞는 곳으로 손을 옮겨요", "품목별 정답과 오답을 기록해요"],
+          game: "정답이면 점수, 연속 정답이면 콤보! 반 대항으로 분리배출 정확도를 겨뤄요.",
+          questions: ["우리 반이 가장 자주 틀리는 품목은 무엇일까?", "사람이 헷갈리는 품목은 AI도 헷갈릴까?"],
+          tasks: ["학교에서 나오는 쓰레기를 깨끗이 씻어 모으기", "품목별로 다양한 각도에서 촬영하기", "우리 지역 분리배출 기준 조사하기", "헷갈리는 품목 퀴즈 만들기"],
+          needs: ["깨끗이 씻은 실제 쓰레기 샘플", "웹캠 노트북", "티처블 머신", "지역 분리배출 안내 자료"],
+          decide: ["품목을 몇 가지로 나눌까?", "교실과 급식실 중 어디에 두면 좋을까?"]
+        },
+        {
+          id: "zerowaste", emoji: "🍱", name: "잔반 제로 챌린지", level: 2, mp: "손", opts: ["data", "tm", "game"],
+          one: "식판을 카메라에 보여 주면 남긴 양을 AI가 판단해 기록하는 챌린지",
+          why: "급식에서 남긴 음식은 모두 음식물 쓰레기가 돼요. 어떤 메뉴가 많이 남는지 알면 줄이는 방법을 찾고, 급식실에 의견도 전할 수 있어요.",
+          flow: ["두 손으로 식판을 들면 <b>MediaPipe</b>가 두 손 사이를 식판으로 보고 잘라요", "<b>티처블 머신</b>이 다 먹음, 조금 남김, 많이 남김을 판단해요", "날짜와 메뉴를 함께 기록해요", "주간 그래프로 결과를 봐요"],
+          game: "반 전체의 잔반 제로 연속 기록에 도전하고, 주간 목표를 달성하면 도장을 받아요.",
+          questions: ["어떤 메뉴에서 잔반이 가장 많이 나올까?", "요일마다 잔반 양이 다를까?", "챌린지 전과 후에 잔반이 줄었을까?"],
+          tasks: ["식판 사진 데이터 모으기 (영양 선생님과 협의)", "식단표 입력하기", "주간 결과를 발표하고 개선 아이디어 제안하기"],
+          needs: ["급식실 근처에 둘 노트북이나 태블릿", "식판 샘플 사진", "급식 식단표", "영양 선생님의 협조"],
+          decide: ["개인 기록 없이 반 전체 기록만 할까?", "결과를 어디에, 어떻게 알릴까?"],
+          note: "억지로 다 먹는 게 목표가 아니에요. 알레르기가 있거나 못 먹는 음식은 남겨도 괜찮아요. 기록은 반 전체로만 남겨요."
+        },
+        {
+          id: "bio", emoji: "🌿", name: "우리 학교 생물 도감", level: 3, mp: "사물 분류", opts: ["data", "tm", "game"],
+          one: "교내 나무와 꽃을 찍으면 AI가 이름을 알려 주고 도감에 모이는 탐험 게임",
+          why: "매일 지나다니는 학교에도 여러 생물이 살지만, 이름을 아는 건 몇 개 안 돼요. 생물 지도를 만들면 우리 학교 환경을 기록하고 지킬 수 있어요.",
+          flow: ["<b>MediaPipe 이미지 분류기</b>가 사물, 곤충, 새 같은 것을 대략 구분해요", "우리 학교 나무와 꽃은 <b>티처블 머신</b>이 이름을 판단해요", "발견한 구역과 날짜를 기록해요", "교내 지도에 표시해 생물 지도를 만들어요"],
+          game: "도감 칸을 채우고, 희귀종을 발견하면 배지를 받아요. 계절마다 새 도감이 열려요.",
+          questions: ["교내에서 가장 많은 식물은 무엇일까?", "계절에 따라 교내 생물은 어떻게 달라질까?", "그늘진 곳과 햇볕 드는 곳의 식물은 다를까?"],
+          tasks: ["교내 식물 조사하기 (과학 선생님과 함께)", "종마다 잎, 꽃, 줄기 사진 찍기", "교내 지도 그리기", "도감 설명 글 쓰기"],
+          needs: ["카메라가 되는 스마트폰이나 태블릿", "인터넷에 올린 웹앱 주소", "식물도감 자료", "교내 지도"],
+          decide: ["식물만 할까, 곤충과 새도 넣을까?", "도감을 다른 반과 함께 채울까?"],
+          note: "식물은 꺾지 않고 사진만 찍어요. 위치는 GPS 대신 '화단 A' 같은 교내 구역 이름으로만 기록해요."
+        }
+      ]
+    },
+    {
+      id: "learn", name: "학습", color: "var(--learn)", folder: "project4",
+      title: "몸으로 배우는 탐구",
+      intro: "수학, 과학, 국어, 정보 시간에 배우는 내용을 몸을 움직이며 확인하고, 데이터로 증명해요.",
+      apps: [
+        {
+          id: "height", emoji: "🕵️", name: "AI 키 탐정", sub: "수학", level: 1, mp: "몸", opts: ["data", "game"],
+          one: "팔 벌린 길이로 키를 추리하고, 반 데이터가 모일수록 똑똑해지는 AI 탐정",
+          why: "레오나르도 다빈치는 「비트루비우스 인간」에서 양팔을 벌린 길이가 키와 같다고 했어요. 정말일까요? 과학 수사에서도 뼈 길이로 키를 추정한대요. 비율과 그래프로 직접 확인해 봐요.",
+          flow: ["<b>MediaPipe</b>가 몸의 점 33개로 팔 벌린 길이와 키를 화면에서 재요", "카메라와의 거리에 따라 크기가 달라지니 <b>비율</b>로 바꿔요", "반 전체 데이터로 산점도와 예측선을 그려요", "줄자로 잰 팔 길이를 넣으면 탐정이 키를 추리해요"],
+          game: "AI 탐정과 사람 중 누가 더 정확하게 추리할까요? 데이터가 모일수록 탐정이 견습에서 명탐정으로 레벨업해요.",
+          questions: ["팔 벌린 길이 ÷ 키는 정말 1에 가까울까?", "몇 명의 데이터가 모이면 예측이 충분히 정확해질까?", "카메라로 잰 값과 줄자로 잰 값은 얼마나 다를까?"],
+          tasks: ["측정 자세와 카메라 거리 정하기", "줄자로 잰 값과 비교하기", "산점도를 해석하고 오차가 생긴 원인 토론하기"],
+          needs: ["전신이 나오는 공간 (카메라에서 2~3m)", "웹캠 노트북", "줄자"],
+          decide: ["키 말고 어떤 신체 비율을 조사해 볼까? (손 길이, 발 길이 등)", "기록은 어떤 방식으로 익명 처리할까?"],
+          note: "키 순위는 절대 만들지 않아요. 반 전체가 함께 탐정을 키우는 협동 게임이에요."
+        },
+        {
+          id: "mole", emoji: "🔨", name: "번개 두더지 잡기", sub: "과학", level: 1, mp: "손", opts: ["data", "game"],
+          one: "손으로 화면 속 두더지를 잡으며 내 반응 속도를 과학적으로 재는 게임",
+          why: "반응 속도는 운동뿐 아니라 길을 건너거나 자전거를 탈 때의 안전과도 관련 있어요. 잠, 식사, 연습이 반응 속도에 정말 영향을 줄까요?",
+          flow: ["<b>MediaPipe</b>가 검지 끝 위치를 따라가요", "두더지가 나타난 순간부터 손이 닿기까지의 시간을 재요", "게임 모드(실험 조건)별로 기록해요", "조건별로 비교하는 그래프를 그려요"],
+          game: "게임 모드가 곧 실험 조건이에요. 빛 신호, 소리 신호, 가짜 두더지(폭탄) 모드가 있고, 혼자 하기와 친구와 대결하기도 있어요. 개인 최고 기록 갱신에 도전해요.",
+          questions: ["소리와 빛 중 어느 쪽에 더 빨리 반응할까?", "친구와 경쟁하면 더 빨라질까?", "몇 판째부터 실력이 더 늘지 않을까?", "1교시와 점심 먹은 후는 다를까?"],
+          tasks: ["비교할 조건과 변인 정하기", "공정한 실험 규칙 만들기 (연습 판 수 등)", "결과를 분석해 탐구 보고서 쓰기"],
+          needs: ["웹캠 노트북", "스피커 (소리 모드)", "탐구 보고서 양식"],
+          decide: ["어떤 조건끼리 비교해 볼까?", "대결 모드는 몇 명까지 할까?"],
+          note: "카메라는 1초에 약 30장을 찍어서 약 0.03초의 오차가 있어요. 모든 조건에 똑같이 생기는 오차라 비교는 할 수 있어요. 이런 측정 오차를 생각해 보는 것도 탐구예요."
+        },
+        {
+          id: "air", emoji: "✍️", name: "공중 글씨 퀴즈", sub: "수학·국어", level: 2, mp: "손", opts: ["data", "tm", "game"],
+          one: "검지로 공중에 숫자와 도형을 쓰면 AI가 알아보는 퀴즈 게임",
+          why: "몸을 움직이며 공부하면 더 재미있고 오래 기억돼요. 우편번호를 읽는 기계처럼 손글씨를 알아보는 AI의 원리도 직접 체험할 수 있어요.",
+          flow: ["<b>MediaPipe</b>가 검지 끝을 따라가며 검은 화면에 선을 그려요", "주먹을 쥐는 등 약속한 신호로 쓰기를 끝내요", "<b>티처블 머신</b>이 그림을 보고 숫자나 도형을 판단해요", "문제별 정답률과 푸는 시간을 기록해요"],
+          game: "구구단, 도형 퀴즈 타임어택! 연속으로 맞히면 콤보 점수를 받아요.",
+          questions: ["사람마다 숫자 쓰는 순서가 다른데 AI가 알아볼까?", "몇 명의 글씨로 학습해야 잘 맞힐까?", "AI가 가장 헷갈리는 숫자 쌍은? (1과 7?)"],
+          tasks: ["숫자와 도형 궤적 데이터 모으기", "퀴즈 문제 만들기", "'쓰기 끝' 신호 정하기"],
+          needs: ["웹캠 노트북", "티처블 머신", "퀴즈 문제 목록"],
+          decide: ["한글 자음이나 영어 알파벳도 해 볼까?", "어떤 과목 퀴즈로 만들까?"]
+        },
+        {
+          id: "league", emoji: "🏆", name: "AI 트레이너 리그", sub: "정보", level: 3, mp: "손", opts: ["data", "tm", "game"],
+          one: "팀별로 제스처 AI를 학습시키고, 처음 보는 문제로 누구 AI가 더 똑똑한지 겨루는 대회",
+          why: "AI의 실력은 데이터가 결정해요. 같은 도구로 만들어도 어떤 데이터를 모았느냐에 따라 결과가 크게 달라져요. 대회를 하며 직접 겪어 봐요.",
+          flow: ["팀마다 같은 제스처 세트를 정해요 (예: 가위바위보 + 2개)", "방법을 골라요: <b>티처블 머신</b>(손 사진, 뼈대 그림) 또는 <b>MediaPipe 좌표</b>로 바로 학습하는 AI", "선생님이 준비한 비공개 시험 문제로 채점해요", "정확도와 헷갈린 제스처(혼동 행렬)를 공개해요"],
+          game: "리그 순위표로 겨뤄요. 'AI 속이기 라운드'에서 상대 AI가 헷갈릴 손 모양을 찾으면 점수! 데이터 수집왕, 오답 사냥꾼 배지도 있어요.",
+          questions: ["데이터를 10장에서 100장으로 늘리면 얼마나 좋아질까?", "한 사람 데이터로만 학습하면 친구 손에도 잘 될까?", "사진, 뼈대 그림, 좌표 중 어떤 방식이 가장 강할까?"],
+          tasks: ["팀 전략 세우기", "데이터 모으기", "혼동 행렬로 약점 분석하기", "보완해서 다시 도전하고 발표하기"],
+          needs: ["팀별 웹캠 노트북", "티처블 머신", "비공개 시험 데이터 (다른 반의 협조)"],
+          decide: ["어떤 제스처 세트로 겨룰까?", "데이터 수에 제한을 둘까?"]
+        }
+      ]
+    },
+    {
+      id: "read", name: "독서", color: "var(--read)", folder: "project5",
+      title: "꾸준히, 다양하게 읽는 습관",
+      intro: "얼마나 빨리, 많이 읽는지가 아니라 얼마나 꾸준히, 다양하게 읽는지에 집중해요. 독서 속도와 분량은 경쟁하지 않아요.",
+      apps: [
+        {
+          id: "readlog", emoji: "📖", name: "독서 몰입 기록장", level: 3, mp: "얼굴 + 손", opts: ["data", "tm", "game"],
+          one: "책을 읽는 동안 몰입 시간과 넘긴 페이지를 자동으로 기록해 주는 독서 기록장",
+          why: "책을 펴 놓고도 스마트폰을 보거나 딴생각을 하기 쉬워요. 내가 실제로 얼마나 몰입했는지 알면 나에게 맞는 독서 방법을 찾을 수 있어요.",
+          flow: ["<b>MediaPipe 얼굴</b>로 고개가 책 쪽을 향하는지, 눈과 책이 너무 가깝지 않은지 확인해요", "<b>MediaPipe 손</b>으로 페이지 넘기는 동작을 세요", "<b>티처블 머신</b>이 손에 든 게 책인지 스마트폰인지 구별해요", "날짜별 몰입 시간과 흐트러진 시점을 기록해요"],
+          game: "연속 독서일을 기록하고, 다 읽은 책으로 화면 속 책장을 채워요.",
+          questions: ["나는 몇 분쯤 읽으면 집중이 흐트러질까?", "소설과 과학책은 한 페이지를 읽는 시간이 다를까?", "음악을 틀면 몰입이 달라질까?"],
+          tasks: ["'몰입'의 기준 정하기", "페이지 넘김 동작 규칙 만들기", "책과 스마트폰 사진 데이터 모으기", "나의 독서 패턴 분석하기"],
+          needs: ["책상 앞 웹캠", "티처블 머신", "읽을 책"],
+          decide: ["눈과 책의 거리가 얼마나 가까우면 알려 줄까?", "몰입 기록을 친구와 공유할까, 나만 볼까?"],
+          note: "눈과 책이 너무 가까우면 알려 줘서 근시 예방에도 도움이 돼요."
+        },
+        {
+          id: "cover", emoji: "📕", name: "학급 문고 표지 인식", level: 2, mp: "손", opts: ["data", "tm", "game"],
+          one: "책을 카메라에 보여 주면 AI가 표지를 알아보고 독서 기록을 남기는 학급 문고 도우미",
+          why: "학급 문고에 좋은 책이 있어도 어떤 책이 인기 있는지, 우리 반이 어떤 장르를 안 읽는지 알기 어려워요.",
+          flow: ["두 손으로 책을 들면 <b>MediaPipe</b>가 두 손 사이를 표지로 보고 잘라요", "<b>티처블 머신</b>이 어떤 책인지 판단해요", "'읽기 시작', '다 읽음'을 기록해요", "장르별 통계로 우리 반 독서를 분석해요"],
+          game: "장르 빙고! 소설, 과학, 역사, 시처럼 다른 장르의 책을 읽을 때마다 칸이 채워지고, 한 줄을 완성하면 배지를 받아요.",
+          questions: ["우리 반 독서는 어떤 장르에 치우쳐 있을까?", "표지가 비슷한 책도 AI가 구별할 수 있을까?"],
+          tasks: ["학급 문고 목록과 장르 정리하기", "책마다 표지 사진 모으기 (각도, 조명 다양하게)", "분석 결과로 추천 도서 고르기"],
+          needs: ["학급 문고 책 (20~30권으로 시작)", "웹캠 노트북", "티처블 머신"],
+          decide: ["장르를 어떻게 나눌까?", "추천 도서 코너를 만들까?"]
+        },
+        {
+          id: "acting", emoji: "🎭", name: "책 속 인물 표정 연기", level: 1, mp: "얼굴 + 몸", opts: ["data", "game"],
+          one: "책 속 장면을 뽑아 인물의 감정을 표정으로 연기하면 AI와 친구들이 맞히는 게임",
+          why: "인물의 마음을 이해하면 이야기가 더 깊이 읽혀요. 감정을 표정과 몸으로 표현해 보면 공감하는 힘도 커져요.",
+          flow: ["<b>MediaPipe 얼굴</b>이 표정 점수 52개(웃음, 눈썹 올림, 입꼬리 내림 등)를 계산해요", "우리가 만든 규칙으로 기쁨, 슬픔, 놀람, 화남 등을 판단해요", "<b>MediaPipe 몸</b>으로 몸짓도 함께 봐요", "친구들의 답과 AI의 판단을 비교해요"],
+          game: "장면 카드를 뽑아 연기해요. AI와 친구들이 모두 맞히면 점수! 어려운 감정에 도전하면 보너스 점수를 받아요.",
+          questions: ["어떤 감정이 표현하기 가장 어려울까?", "AI와 사람의 판단이 엇갈리는 표정은 무엇일까?"],
+          tasks: ["읽은 책에서 장면 카드 만들기", "감정 판단 규칙 정하기", "AI와 사람의 판단 비교하기"],
+          needs: ["웹캠 노트북", "함께 읽은 책", "장면 카드"],
+          decide: ["어떤 책으로 시작할까?", "모둠 대항으로 할까?"],
+          note: "진짜 기분을 재는 게 아니라 '연기'를 판단하는 거예요. 표정 데이터는 저장하지 않고 감정 이름만 기록해요."
+        },
+        {
+          id: "aloud", emoji: "🗣️", name: "낭독 무대 코치", level: 1, mp: "얼굴", opts: ["data", "game"],
+          one: "소리 내어 읽을 때 청중을 바라보는지, 입을 크게 여는지 알려 주는 낭독 연습 코치",
+          why: "발표나 낭독을 할 때 원고만 보고 작게 읽으면 내용이 잘 전달되지 않아요. 연습할 때마다 누가 봐 주면 좋겠지만 늘 그럴 수는 없죠.",
+          flow: ["<b>MediaPipe 얼굴</b>로 고개를 들어 청중을 본 비율을 재요", "입을 벌린 정도로 또렷하게 읽는지 확인해요", "(선택) <b>티처블 머신 오디오</b>로 목소리 크기를 판단해요", "연습 회차별로 기록해 변화를 봐요"],
+          game: "청중 보기와 또렷함으로 무대 별점을 받아요. 연습할수록 무대가 교실 → 강당 → 대극장으로 커져요.",
+          questions: ["연습을 반복하면 청중을 보는 비율이 늘까?", "시와 이야기글은 낭독하는 방법이 다를까?"],
+          tasks: ["낭독할 글 고르기", "'좋은 낭독'의 기준 토론하기", "회차별 기록 비교하기"],
+          needs: ["웹캠 노트북", "낭독할 글", "(선택) 마이크"],
+          decide: ["별점 기준은 무엇으로 할까?", "모둠 낭독도 해 볼까?"],
+          note: "마이크를 쓰더라도 목소리는 녹음하거나 저장하지 않아요."
+        }
+      ]
+    }
+  ];
+
+  const $ = (s) => document.querySelector(s);
+  const ALL = FIELDS.flatMap((f) => f.apps.map((a) => ({ ...a, field: f })));
+  const MAX_PICK = 3;
+  const STORE = "mediapipe-plan-picks-v1";
+
+  // ── 손의 점 21개 그리기 ──
+  (function drawHand() {
+    const P = [[100,205],[70,190],[48,165],[35,140],[25,117],[75,125],[70,90],[67,67],[65,45],[100,120],[100,80],[100,55],[100,31],[124,125],[128,89],[131,67],[133,47],[146,137],[156,110],[162,93],[167,75]];
+    const E = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[0,17],[17,18],[18,19],[19,20]];
+    const svg = $("#hand");
+    const ns = "http://www.w3.org/2000/svg";
+    E.forEach(([a, b]) => {
+      const l = document.createElementNS(ns, "line");
+      l.setAttribute("x1", P[a][0]); l.setAttribute("y1", P[a][1]);
+      l.setAttribute("x2", P[b][0]); l.setAttribute("y2", P[b][1]);
+      svg.appendChild(l);
+    });
+    P.forEach(([x, y], i) => {
+      const c = document.createElementNS(ns, "circle");
+      c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", i === 8 ? 6 : 4.5);
+      svg.appendChild(c);
+    });
+    const t = document.createElementNS(ns, "text");
+    t.setAttribute("x", 100); t.setAttribute("y", 226); t.setAttribute("text-anchor", "middle");
+    t.textContent = "HAND · 21 POINTS";
+    svg.appendChild(t);
+  })();
+
+  // ── 분야와 프로젝트 카드 만들기 ──
+  const list = (items) => `<ul>${items.map((i) => `<li>${i}</li>`).join("")}</ul>`;
+  const dots = (n) => "●".repeat(n) + "○".repeat(3 - n);
+  const levelName = ["", "입문", "중급", "심화"];
+
+  function appCard(a, f) {
+    return `
+    <article class="app" id="app-${a.id}" style="--c:${f.color}">
+      <div class="app-head">
+        <div class="emoji" aria-hidden="true">${a.emoji}</div>
+        <div>
+          <h3>${a.name}${a.sub ? `<small>${a.sub}</small>` : ""}</h3>
+          <p class="one">${a.one}</p>
+          <div class="meta">
+            <span class="chip mp">MediaPipe · ${a.mp}</span>
+            ${a.opts.map((o) => `<span class="chip">${OPT[o]}</span>`).join("")}
+            <span class="chip lv" title="난이도">${dots(a.level)} ${levelName[a.level]}</span>
+          </div>
+        </div>
+        <button type="button" class="pick" data-id="${a.id}" aria-pressed="false">☆ 해 보고 싶어요</button>
+      </div>
+      <details class="more">
+        <summary><span class="closed">자세히 보기</span><span class="opened">접기</span></summary>
+        <div class="grid">
+          <div class="wide"><h4>왜 필요할까요?</h4><p>${a.why}</p></div>
+          <div class="wide"><h4>어떻게 동작하나요?</h4><ol class="flow">${a.flow.map((s) => `<li>${s}</li>`).join("")}</ol></div>
+          <div><h4>🎮 게임은 이렇게</h4><p>${a.game}</p></div>
+          <div><h4>🔍 탐구 질문</h4>${list(a.questions)}</div>
+          <div><h4>🙋 우리가 할 일</h4>${list(a.tasks)}</div>
+          <div><h4>🧰 필요한 것</h4>${list(a.needs)}</div>
+          <div class="${a.note ? "" : "wide"}"><h4>💬 함께 정해요</h4><ul class="decide">${a.decide.map((d) => `<li>${d}</li>`).join("")}</ul></div>
+          ${a.note ? `<div><h4>⚠️ 알아 두세요</h4><p class="note">${a.note}</p></div>` : ""}
+        </div>
+      </details>
+    </article>`;
+  }
+
+  $("#fields").innerHTML = FIELDS.map((f) => `
+    <section class="field" id="${f.id}" style="--c:${f.color}">
+      <div class="field-head">
+        <div>
+          <p class="label">${f.name.toUpperCase()} · ${f.apps.length}개 프로젝트</p>
+          <h2>${f.name}: ${f.title}</h2>
+          <p>${f.intro}</p>
+        </div>
+        <span class="folder">${f.folder}/</span>
+      </div>
+      <div class="apps">${f.apps.map((a) => appCard(a, f)).join("")}</div>
+    </section>`).join("");
+
+  const toc = $("#toc");
+  FIELDS.forEach((f) => {
+    toc.insertAdjacentHTML("beforeend", `<li><a href="#${f.id}" style="--c:${f.color}"><i></i>${f.name}</a></li>`);
+  });
+  toc.insertAdjacentHTML("beforeend", `<li><a href="#promise">약속</a></li><li><a href="#talk">의견 내기</a></li><li><a href="#road">계획</a></li>`);
+
+  // ── 모두 펼치기 ──
+  const toggleBtn = $("#toggleAll");
+  toggleBtn.addEventListener("click", () => {
+    const all = [...document.querySelectorAll("details.more")];
+    const open = !all.every((d) => d.open);
+    all.forEach((d) => (d.open = open));
+    toggleBtn.textContent = open ? "모든 프로젝트 접기" : "모든 프로젝트 자세히 펼치기";
+  });
+
+  // ── 해 보고 싶은 프로젝트 고르기 ──
+  let picks = [];
+  const saved = { reason: "", idea: "" };
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE) || "{}");
+    picks = (s.picks || []).filter((id) => ALL.some((a) => a.id === id)).slice(0, MAX_PICK);
+    saved.reason = s.reason || "";
+    saved.idea = s.idea || "";
+  } catch (e) { /* 저장이 막혀 있어도 동작 */ }
+  $("#reason").value = saved.reason;
+  $("#idea").value = saved.idea;
+
+  function persist() {
+    try { localStorage.setItem(STORE, JSON.stringify({ picks, reason: $("#reason").value, idea: $("#idea").value })); } catch (e) { /* 무시 */ }
+  }
+
+  const status = $("#status");
+  function renderPicks() {
+    document.querySelectorAll(".pick").forEach((b) => {
+      const on = picks.includes(b.dataset.id);
+      b.setAttribute("aria-pressed", on);
+      b.textContent = on ? "★ 골랐어요" : "☆ 해 보고 싶어요";
+    });
+    const ul = $("#picked");
+    ul.innerHTML = "";
+    for (let i = 0; i < MAX_PICK; i++) {
+      const li = document.createElement("li");
+      const a = ALL.find((x) => x.id === picks[i]);
+      if (a) {
+        li.innerHTML = `<b>${i + 1}</b><span>${a.emoji} ${a.name} <small style="color:var(--muted)">· ${a.field.name}</small></span>`;
+      } else {
+        li.className = "empty";
+        li.textContent = `${i + 1}. 아직 고르지 않았어요. 프로젝트 카드의 ☆ 버튼을 눌러 보세요.`;
+      }
+      ul.appendChild(li);
+    }
+  }
+
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest(".pick");
+    if (!b) return;
+    const id = b.dataset.id;
+    if (picks.includes(id)) {
+      picks = picks.filter((x) => x !== id);
+    } else if (picks.length >= MAX_PICK) {
+      b.textContent = "3개까지만 고를 수 있어요";
+      setTimeout(() => { if (!picks.includes(id)) b.textContent = "☆ 해 보고 싶어요"; }, 1800);
+      return;
+    } else {
+      picks.push(id);
+    }
+    renderPicks();
+    persist();
+  });
+  ["reason", "idea"].forEach((id) => $("#" + id).addEventListener("input", persist));
+
+  function buildText() {
+    const lines = ["[해 보고 싶은 프로젝트]"];
+    if (picks.length === 0) lines.push("- (아직 고르지 않음)");
+    picks.forEach((id, i) => {
+      const a = ALL.find((x) => x.id === id);
+      lines.push(`${i + 1}. ${a.emoji} ${a.name} (${a.field.name})`);
+    });
+    lines.push("", "[고른 이유, 바꾸고 싶은 점]", $("#reason").value.trim() || "-");
+    lines.push("", "[새로운 프로젝트 아이디어]", $("#idea").value.trim() || "-");
+    return lines.join("\n");
+  }
+
+  $("#copy").addEventListener("click", async () => {
+    const text = buildText();
+    try {
+      await navigator.clipboard.writeText(text);
+      status.textContent = "복사했어요! 의견 받는 곳에 붙여 넣어 주세요.";
+    } catch (e) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch (err) { ok = false; }
+      ta.remove();
+      status.textContent = ok ? "복사했어요! 의견 받는 곳에 붙여 넣어 주세요." : "복사가 막혀 있어요. 내용을 직접 선택해서 복사해 주세요.";
+    }
+  });
+
+  if (FEEDBACK_URL) {
+    const a = document.createElement("a");
+    a.href = FEEDBACK_URL;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.className = "btn";
+    a.style.textDecoration = "none";
+    a.textContent = "의견 보내러 가기 →";
+    $("#copy").after(a);
+  }
+
+  renderPicks();
+</script>

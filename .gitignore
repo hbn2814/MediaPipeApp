@@ -1,0 +1,31 @@
+# 학생 데이터는 저장소에 올리지 않아요 (수집 기록, 학습용 사진·영상·녹음)
+data/
+datasets/
+captures/
+recordings/
+*.csv
+*.tsv
+*.xlsx
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.heic
+*.mp4
+*.webm
+*.mov
+*.wav
+*.mp3
+*.m4a
+*.zip
+
+# 비밀 정보
+.env
+.env.*
+
+# 도구·운영체제 파일
+node_modules/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini

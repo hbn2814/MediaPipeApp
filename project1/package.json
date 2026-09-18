@@ -1,0 +1,10 @@
+{
+  "name": "mediapipe-school-apps",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MediaPipe로 만든 학교 앱 예제 (손가락 퀴즈, 스쿼트 카운터, 집중 타이머)",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}
