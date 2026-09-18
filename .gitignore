@@ -29,3 +29,8 @@ node_modules/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# 예외: 사이트 아이콘과 공유 미리보기 이미지는 올려요 (학생 사진은 여기에 두지 않아요)
+!/favicon-32.png
+!/apple-touch-icon.png
+!/assets/og/*.png
