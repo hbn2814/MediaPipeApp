@@ -9,6 +9,7 @@
   <style>
     :root { --bg: #0b0f1a; --panel: #151b2b; --ink: #eef3fb; --muted: #9aa8bd; --line: #273149; --accent: #ffd23f; }
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
     html { color-scheme: dark; }
     body { margin: 0; font-family: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; background: radial-gradient(1200px 500px at 50% -10%, #1f2a4a 0%, var(--bg) 60%) no-repeat, var(--bg); color: var(--ink); line-height: 1.6; word-break: keep-all; }
     .wrap { max-width: 1080px; margin: 0 auto; padding: 36px 20px 64px; }
@@ -16,22 +17,34 @@
     .back:hover { color: var(--ink); }
     h1 { margin: 12px 0 6px; font-size: clamp(32px, 6vw, 52px); letter-spacing: -0.03em; }
     h1 span { color: var(--accent); }
-    .lead { margin: 0 0 28px; max-width: 44em; color: var(--muted); font-size: 17px; }
-    .games { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
-    .game { display: flex; flex-direction: column; gap: 10px; padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); color: inherit; text-decoration: none; transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s; }
+    .lead { margin: 0 0 22px; max-width: 44em; color: var(--muted); font-size: 17px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .filters button { font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; padding: 8px 16px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--panel); color: var(--muted); }
+    .filters button:hover { color: var(--ink); }
+    .filters button[aria-pressed="true"] { border-color: var(--accent); background: #2a2410; color: var(--accent); }
+    .filters button:focus-visible, .game:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+    .games { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .game { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 4px 18px; align-items: center; padding: 18px 20px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); color: inherit; text-decoration: none; transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s; }
     .game:hover { transform: translateY(-3px); border-color: var(--c); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35); }
-    .game:focus-visible { outline: 3px solid var(--c); outline-offset: 3px; }
-    .icon { font-size: 44px; line-height: 1; }
-    .game.idea { border-style: dashed; background: transparent; }
-    .game h2 { margin: 0; font-size: 24px; letter-spacing: -0.02em; }
-    .game p { margin: 0; color: var(--muted); }
+    .icon { grid-row: span 3; display: grid; place-items: center; width: 92px; height: 92px; border-radius: 20px; font-size: 32px; line-height: 1; white-space: nowrap; letter-spacing: -2px; background: color-mix(in srgb, var(--c) 16%, var(--bg)); }
+    .game h2 { margin: 0; font-size: 22px; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+    .new { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 6px; background: var(--accent); color: #1b1300; }
+    .game p { margin: 0; color: var(--muted); font-size: 15px; }
     .tags { display: flex; flex-wrap: wrap; gap: 6px; }
-    .tag { padding: 2px 10px; border-radius: 999px; background: #0b0f1a; color: var(--muted); font-size: 13px; font-weight: 600; }
+    .tag { padding: 1px 9px; border-radius: 999px; background: #0b0f1a; color: var(--muted); font-size: 12.5px; font-weight: 600; }
     .tag.ai { color: var(--c); }
-    .play { margin-top: auto; padding-top: 6px; color: var(--c); font-weight: 800; }
-    .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 28px; }
+    .idea { margin-top: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding: 16px 20px; border: 1.5px dashed var(--line); border-radius: 18px; color: var(--muted); text-decoration: none; }
+    .idea:hover { border-color: var(--accent); color: var(--ink); }
+    .idea b { color: var(--ink); font-size: 17px; }
+    .idea span:last-child { margin-left: auto; color: var(--accent); font-weight: 800; }
+    .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-top: 28px; }
     .notes div { padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; color: var(--muted); font-size: 14.5px; }
     .notes b { display: block; color: var(--ink); }
+    @media (max-width: 760px) {
+      .games { grid-template-columns: minmax(0, 1fr); }
+      .game { grid-template-columns: 70px minmax(0, 1fr); padding: 16px; }
+      .icon { width: 70px; height: 70px; font-size: 24px; border-radius: 16px; }
+    }
     @media (prefers-reduced-motion: reduce) { .game { transition: none; } .game:hover { transform: none; } }
   </style>
 </head>
@@ -39,59 +52,105 @@
   <div class="wrap">
     <a class="back" href="../">← 처음으로</a>
     <h1>🎮 게임 <span>코너</span></h1>
-    <p class="lead">준비물 없이 카메라만 켜면 바로 하는 MediaPipe 게임이에요. 한 판에 1~2분, 수업 시작 전 워밍업이나 쉬는 시간에 즐겨 보세요.</p>
+    <p class="lead">준비물 없이 카메라만 켜면 바로 하는 MediaPipe 게임 10가지예요. 한 판에 1~2분, 수업 시작 전 워밍업이나 쉬는 시간에 즐겨 보세요.</p>
 
-    <div class="games">
-      <a class="game" href="fruit-ninja/" style="--c: #ff5d73">
+    <div class="filters" role="group" aria-label="게임 고르기">
+      <button type="button" data-filter="all" aria-pressed="true">전체 10</button>
+      <button type="button" data-filter="hand" aria-pressed="false">✋ 손</button>
+      <button type="button" data-filter="body" aria-pressed="false">🧍 몸</button>
+      <button type="button" data-filter="face" aria-pressed="false">🙂 얼굴</button>
+      <button type="button" data-filter="group" aria-pressed="false">👥 여럿이</button>
+    </div>
+
+    <div class="games" id="games">
+      <a class="game" href="fruit-ninja/" data-tags="hand" style="--c: #ff5d73">
         <div class="icon">✂️🍉</div>
         <h2>과일 닌자</h2>
         <p>검지를 빠르게 휘둘러 날아오는 과일을 베요. 폭탄은 조심!</p>
-        <div class="tags"><span class="tag ai">✋ 손 인식</span><span class="tag">1명</span><span class="tag">앉아서</span><span class="tag">60초</span></div>
-        <span class="play">플레이 →</span>
+        <div class="tags"><span class="tag ai">✋ 손 인식</span><span class="tag">1명</span><span class="tag">60초</span></div>
       </a>
-      <a class="game" href="hole-wall/" style="--c: #ff9f43">
+      <a class="game" href="hole-wall/" data-tags="body" style="--c: #ff9f43">
         <div class="icon">🧱🙌</div>
         <h2>벽 통과 챌린지</h2>
         <p>다가오는 벽의 사람 모양 구멍에 맞춰 몸으로 자세를 만들어요.</p>
         <div class="tags"><span class="tag ai">🧍 몸 인식</span><span class="tag">1명씩 교대</span><span class="tag">서서 / 앉아서</span></div>
-        <span class="play">플레이 →</span>
       </a>
-      <a class="game" href="hand-pong/" style="--c: #3ecbff">
+      <a class="game" href="hand-pong/" data-tags="hand group" style="--c: #3ecbff">
         <div class="icon">🏓</div>
         <h2>손 탁구 대결</h2>
         <p>손을 위아래로 움직여 라켓을 조종해요. 친구와 5점 내기!</p>
-        <div class="tags"><span class="tag ai">✋ 손 2개 인식</span><span class="tag">2명 / 컴퓨터</span><span class="tag">앉아서</span></div>
-        <span class="play">플레이 →</span>
+        <div class="tags"><span class="tag ai">✋ 손 2개 인식</span><span class="tag">2명 / 컴퓨터</span></div>
       </a>
-      <a class="game" href="face-challenge/" style="--c: #c77dff">
+      <a class="game" href="face-challenge/" data-tags="face" style="--c: #c77dff">
         <div class="icon">😜😮</div>
         <h2>표정 챌린지</h2>
         <p>화면에 나오는 표정을 제한 시간 안에 따라 해요. 윙크할 수 있나요?</p>
-        <div class="tags"><span class="tag ai">🙂 얼굴 표정 인식</span><span class="tag">1명</span><span class="tag">얼굴만</span></div>
-        <span class="play">플레이 →</span>
+        <div class="tags"><span class="tag ai">🙂 표정 인식</span><span class="tag">1명</span></div>
       </a>
-      <a class="game" href="reverse-rps/" style="--c: #3ddc97">
-        <div class="icon">✊✌️✋</div>
+      <a class="game" href="reverse-rps/" data-tags="hand" style="--c: #3ddc97">
+        <div class="icon">✊✌️</div>
         <h2>거꾸로 가위바위보</h2>
-        <p>컴퓨터가 낸 손을 보고 "져라!", "이겨라!" 지시대로 내요. 생각보다 어려워요!</p>
+        <p>컴퓨터가 낸 손을 보고 "져라!", "이겨라!" 지시대로 내요.</p>
         <div class="tags"><span class="tag ai">✋ 손 인식</span><span class="tag">1명</span><span class="tag">두뇌 워밍업</span></div>
-        <span class="play">플레이 →</span>
       </a>
-      <a class="game idea" href="../plan/#talk" style="--c: #ffd23f">
-        <div class="icon">💡</div>
-        <h2>다음 게임은?</h2>
-        <p>공중 그림 퀴즈, 고개 비행기… 만들고 싶은 게임이 있다면 기획안에 의견을 남겨 주세요.</p>
-        <div class="tags"><span class="tag">아이디어 모집 중</span></div>
-        <span class="play">의견 내러 가기 →</span>
+      <a class="game" href="head-plane/" data-tags="face" style="--c: #5aa9ff">
+        <div class="icon">✈️☁️</div>
+        <h2>고개 비행기 <span class="new">NEW</span></h2>
+        <p>고개를 옆으로 기울여 비행기를 조종해요. 목 스트레칭도 함께!</p>
+        <div class="tags"><span class="tag ai">🙂 고개 기울기</span><span class="tag">1명</span><span class="tag">스트레칭</span></div>
+      </a>
+      <a class="game" href="air-draw/" data-tags="hand group" style="--c: #ffb347">
+        <div class="icon">☝️🎨</div>
+        <h2>공중 그림 퀴즈 <span class="new">NEW</span></h2>
+        <p>검지로 공중에 그림을 그리면 친구들이 무엇인지 맞혀요.</p>
+        <div class="tags"><span class="tag ai">✋ 손 인식</span><span class="tag">모둠</span><span class="tag">자유 그리기</span></div>
+      </a>
+      <a class="game" href="balloon-pop/" data-tags="body" style="--c: #ff4f7b">
+        <div class="icon">🎈🦶</div>
+        <h2>풍선 팡팡 <span class="new">NEW</span></h2>
+        <p>손·머리·발로 풍선을 터뜨려요. 풍선마다 쓸 수 있는 부위가 달라요!</p>
+        <div class="tags"><span class="tag ai">🧍 몸 인식</span><span class="tag">1명</span><span class="tag">서서 / 앉아서</span></div>
+      </a>
+      <a class="game" href="freeze-dance/" data-tags="body group" style="--c: #7fe7ff">
+        <div class="icon">💃🧊</div>
+        <h2>얼음 땡 <span class="new">NEW</span></h2>
+        <p>음악이 멈추면 얼음! AI 심판이 움직인 사람을 찾아내요.</p>
+        <div class="tags"><span class="tag ai">🧍 여러 명 인식</span><span class="tag">최대 5명</span><span class="tag">음악</span></div>
+      </a>
+      <a class="game" href="pinch-order/" data-tags="hand" style="--c: #ffd23f">
+        <div class="icon">🤏🔢</div>
+        <h2>순서대로 집게 <span class="new">NEW</span></h2>
+        <p>엄지와 검지로 집어서 숫자·한글·알파벳을 순서대로 모아요.</p>
+        <div class="tags"><span class="tag ai">✋ 집기 인식</span><span class="tag">1명</span><span class="tag">기록 도전</span></div>
       </a>
     </div>
 
+    <a class="idea" href="../plan/#talk">
+      <span>💡</span>
+      <b>다음 게임은?</b>
+      <span>만들고 싶은 게임이 있다면 기획안에 의견을 남겨 주세요.</span>
+      <span>의견 내러 가기 →</span>
+    </a>
+
     <div class="notes">
       <div><b>🔒 저장하지 않아요</b>카메라 영상과 점수는 저장하거나 전송하지 않아요. "오늘의 최고" 기록도 새로고침하면 사라져요.</div>
-      <div><b>📷 카메라 허용</b>시작할 때 카메라 권한을 <b>허용</b>해 주세요. 처음에는 AI 모델을 내려받느라 몇 초 걸려요.</div>
+      <div><b>📷 카메라 허용</b>시작할 때 카메라 권한을 허용해 주세요. 처음에는 AI 모델을 내려받느라 몇 초 걸려요.</div>
       <div><b>⚠️ 안전하게</b>몸을 쓰는 게임은 주변을 비우고 해요. 어려우면 앉아서 하는 모드를 골라요.</div>
       <div><b>🛠 고쳐 보기</b>게임마다 <code>rules.js</code>의 숫자를 바꾸면 난이도가 바뀌어요.</div>
     </div>
   </div>
+
+  <script>
+    // 손·몸·얼굴·여럿이로 게임 골라 보기
+    const buttons = document.querySelectorAll("[data-filter]");
+    const games = document.querySelectorAll("#games .game");
+    buttons.forEach((button) =>
+      button.addEventListener("click", () => {
+        const filter = button.dataset.filter;
+        buttons.forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+        games.forEach((game) => (game.hidden = filter !== "all" && !game.dataset.tags.split(" ").includes(filter)));
+      }),
+    );
+  </script>
 </body>
 </html>

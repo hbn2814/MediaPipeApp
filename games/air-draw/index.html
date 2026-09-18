@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>공중 그림 퀴즈 | 게임 코너</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link rel="stylesheet" href="../shared/game.css" />
+</head>
+<body>
+  <header class="top">
+    <a href="../">← 게임 코너</a>
+    <h1>🎨 공중 그림 퀴즈</h1>
+    <p>검지로 공중에 그림을 그리고, 친구들이 무엇인지 맞혀요!</p>
+    <div class="tools">
+      <button class="tool restart" id="correctBtn" type="button" hidden>⭕ 맞혔어요 (O)</button>
+      <button class="tool" id="skipBtn" type="button" hidden>⏭ 넘기기 (X)</button>
+      <button class="tool" id="restartBtn" type="button" hidden>↺ 처음부터</button>
+      <button class="tool" id="muteBtn" type="button">🔊 소리 끄기</button>
+      <button class="tool" id="fsBtn" type="button">⛶ 전체 화면</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="stage" id="stage">
+      <video id="video" playsinline muted></video>
+      <canvas id="canvas" width="1280" height="720"></canvas>
+      <div class="hud">
+        <span class="pill">맞힌 그림 <b id="score">0</b></span>
+        <span class="pill">문제 <b id="round">0</b></span>
+        <span class="pill">⏱ <b id="time">-</b></span>
+        <span class="pill right">힌트 <b id="hint">-</b></span>
+      </div>
+      <div class="overlay" id="overlay">
+        <div class="big">☝️🎨</div>
+        <h2>공중 그림 퀴즈</h2>
+        <ul>
+          <li>☝️ 검지만 펴면 그려지고, ✌️ 가위나 ✊ 주먹이면 펜을 들어요</li>
+          <li>✋ 보를 1초 유지하면 그림을 모두 지워요</li>
+          <li>🙈 제시어가 나올 때 친구들은 눈을 감고, 그림을 보고 맞혀요</li>
+        </ul>
+        <div class="modes" role="group" aria-label="모드 고르기">
+          <button type="button" data-mode="quiz" aria-pressed="true">🧩 퀴즈 모드 (모둠)</button>
+          <button type="button" data-mode="free" aria-pressed="false">🖌️ 자유 그리기</button>
+        </div>
+        <button class="primary" id="startBtn" type="button">카메라 켜고 시작하기</button>
+        <p id="overlayMsg">카메라 영상과 그림은 저장하거나 전송하지 않고, 이 기기 안에서만 처리해요.</p>
+      </div>
+    </section>
+  </main>
+
+  <section class="help">
+    <div><b>진행 방법</b>친구가 맞히면 "⭕ 맞혔어요"(O 키), 너무 어려우면 "⏭ 넘기기"(X 키)를 눌러요. 60초가 지나면 정답이 나와요.</div>
+    <div><b>잘 안 그려지면?</b>손바닥이 카메라를 향하게 하고, 검지를 곧게 펴요. 선이 떨리면 조금 천천히 움직여 보세요.</div>
+    <div><b>숨은 원리</b>손가락이 펴졌는지는 project1 손가락 퀴즈의 규칙을 다시 써요. 검지 끝 위치를 매번 50%씩만 따라가 손떨림을 줄여요.</div>
+    <div><b>바꿔 보기</b><code>rules.js</code>의 <code>WORDS</code>에 우리 반만의 제시어를 넣거나 <code>ROUND_SECONDS</code>를 바꿔 보세요.</div>
+  </section>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>고개 비행기 | 게임 코너</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link rel="stylesheet" href="../shared/game.css" />
+</head>
+<body>
+  <header class="top">
+    <a href="../">← 게임 코너</a>
+    <h1>🪂 고개 비행기</h1>
+    <p>고개를 옆으로 기울여 비행기를 조종해요. 목 스트레칭도 함께!</p>
+    <div class="tools">
+      <button class="tool restart" id="restartBtn" type="button" hidden>↺ 다시 하기</button>
+      <button class="tool" id="muteBtn" type="button">🔊 소리 끄기</button>
+      <button class="tool" id="fsBtn" type="button">⛶ 전체 화면</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="stage" id="stage">
+      <video id="video" playsinline muted></video>
+      <canvas id="canvas" width="1280" height="720"></canvas>
+      <div class="hud">
+        <span class="pill">⭐ <b id="stars">0</b></span>
+        <span class="pill">점수 <b id="score">0</b></span>
+        <span class="pill" id="hits">❤️❤️❤️</span>
+        <span class="pill right">오늘의 최고 <b id="best">0</b></span>
+      </div>
+      <div class="overlay" id="overlay">
+        <div class="big">✈️☁️⭐</div>
+        <h2>고개 비행기</h2>
+        <ul>
+          <li>🙆 귀를 어깨 쪽으로 기울이면 비행기가 그쪽으로 가요</li>
+          <li>⭐ 별은 +10점, 오래 날수록 점수가 올라요</li>
+          <li>🐦 새와 ⛈️ 먹구름에 3번 부딪히면 끝</li>
+        </ul>
+        <button class="primary" id="startBtn" type="button">카메라 켜고 시작하기</button>
+        <p id="overlayMsg">카메라 영상은 저장하거나 전송하지 않고, 이 기기 안에서만 처리해요.</p>
+      </div>
+    </section>
+  </main>
+
+  <section class="help">
+    <div><b>⚠️ 천천히</b>목을 세게 꺾지 말고, 어깨는 내린 채 천천히 기울여요. 별이 가장자리에 많이 나와서 자연스럽게 목이 늘어나요.</div>
+    <div><b>숨은 원리</b>두 눈의 바깥쪽 끝을 잇는 선의 각도로 기울기를 재요. 22도 기울이면 화면 끝까지 가요.</div>
+    <div><b>바꿔 보기</b><code>rules.js</code>의 <code>MAX_TILT</code>를 줄이면 조금만 기울여도 되고, <code>START_SPEED</code>로 속도를 바꿔요.</div>
+    <div><b>조작</b>스페이스바나 ↺ 버튼으로 처음 화면으로 돌아가요.</div>
+  </section>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

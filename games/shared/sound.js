@@ -35,6 +35,11 @@ function tone(freq, duration, { type = "sine", volume = 0.12, delay = 0, slide =
   osc.stop(start + duration + 0.02);
 }
 
+/** 음표 하나 연주 (배경 음악용) */
+export function playNote(freq, duration, options) {
+  tone(freq, duration, options);
+}
+
 export const sfx = {
   slice: () => tone(900, 0.07, { type: "triangle", volume: 0.09, slide: 500 }),
   hit: () => tone(520, 0.05, { type: "square", volume: 0.05 }),

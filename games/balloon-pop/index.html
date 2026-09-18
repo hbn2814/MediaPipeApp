@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>풍선 팡팡 | 게임 코너</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link rel="stylesheet" href="../shared/game.css" />
+</head>
+<body>
+  <header class="top">
+    <a href="../">← 게임 코너</a>
+    <h1>🎈 풍선 팡팡</h1>
+    <p>손·머리·발로 풍선을 터뜨려요. 풍선마다 터뜨리는 부위가 달라요!</p>
+    <div class="tools">
+      <button class="tool restart" id="restartBtn" type="button" hidden>↺ 다시 하기</button>
+      <button class="tool" id="muteBtn" type="button">🔊 소리 끄기</button>
+      <button class="tool" id="fsBtn" type="button">⛶ 전체 화면</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="stage" id="stage">
+      <video id="video" playsinline muted></video>
+      <canvas id="canvas" width="1280" height="720"></canvas>
+      <div class="hud">
+        <span class="pill">점수 <b id="score">0</b></span>
+        <span class="pill">⏱ <b id="time">60</b>초</span>
+        <span class="pill right">오늘의 최고 <b id="best">0</b></span>
+      </div>
+      <div class="overlay" id="overlay">
+        <div class="big">🎈🦶🙆</div>
+        <h2>풍선 팡팡</h2>
+        <ul>
+          <li>🎈 빨간 풍선은 아무 부위로나 +1</li>
+          <li>🙆 노란 풍선은 머리로만, 🦶 초록 풍선은 발로만 +3</li>
+          <li>💣 폭탄에 닿으면 −3. 60초 동안 최고 점수에 도전!</li>
+        </ul>
+        <div class="modes" role="group" aria-label="모드 고르기">
+          <button type="button" data-mode="standing" aria-pressed="true">🧍 서서 하기 (손·머리·발)</button>
+          <button type="button" data-mode="seated" aria-pressed="false">🪑 앉아서 하기 (손·머리)</button>
+        </div>
+        <button class="primary" id="startBtn" type="button">카메라 켜고 시작하기</button>
+        <p id="overlayMsg">카메라 영상은 저장하거나 전송하지 않고, 이 기기 안에서만 처리해요.</p>
+      </div>
+    </section>
+  </main>
+
+  <section class="help">
+    <div><b>⚠️ 안전하게</b>주변 2m를 비우고, 발로 찰 때는 넘어지지 않게 가볍게 뻗어요. 책상과 의자에서 떨어져서 해요.</div>
+    <div><b>잘 안 되면?</b>서서 하기는 발끝까지 화면에 보여야 해요. 몸에 표시된 색 점(파랑 손, 노랑 머리, 초록 발)으로 풍선을 건드려요.</div>
+    <div><b>숨은 원리</b>몸의 점과 풍선 가운데 사이 거리가 풍선 크기보다 가까우면 터져요. 풍선마다 터뜨릴 수 있는 부위 목록이 정해져 있어요.</div>
+    <div><b>바꿔 보기</b><code>rules.js</code>의 <code>TYPES</code>에서 점수나 부위를 바꾸고, <code>BALLOON_SIZE</code>로 크기를 바꿔 보세요.</div>
+  </section>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

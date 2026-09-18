@@ -219,3 +219,177 @@ test("처음 몇 문제는 '져라'만 나오고, 정답이 앞 문제와 같지
   assert.notEqual(unlucky.answer, "scissors");
   assert.equal(rps.judge(unlucky.answer, unlucky.computer), unlucky.order);
 });
+
+// ════════════ 두 번째 묶음 ════════════
+import * as plane from "../head-plane/rules.js";
+import * as draw from "../air-draw/rules.js";
+import * as balloon from "../balloon-pop/rules.js";
+import * as freeze from "../freeze-dance/rules.js";
+import * as pinch from "../pinch-order/rules.js";
+import { handsUp } from "../shared/body.js";
+
+// ───────── 고개 비행기 ─────────
+test("두 눈을 잇는 선으로 고개 기울기를 잰다", () => {
+  near(plane.tiltAngle({ x: 0, y: 0 }, { x: 10, y: 0 }), 0);
+  near(plane.tiltAngle({ x: 0, y: 0 }, { x: 10, y: 10 }), 45); // 오른쪽이 아래 = 오른쪽으로 기울임
+  near(plane.tiltAngle({ x: 10, y: 10 }, { x: 0, y: 0 }), 45); // 점 순서가 바뀌어도 같아요
+  assert.ok(plane.tiltAngle({ x: 0, y: 10 }, { x: 10, y: 0 }) < 0);
+});
+
+test("기울기에 따라 비행기 위치가 정해지고, 작은 기울기는 무시한다", () => {
+  assert.equal(plane.targetX(0), 0.5);
+  assert.equal(plane.targetX(plane.DEAD_ZONE - 0.1), 0.5);
+  assert.equal(plane.targetX(plane.MAX_TILT), 1);
+  assert.equal(plane.targetX(-plane.MAX_TILT * 2), 0);
+  assert.ok(plane.targetX(10) > 0.5 && plane.targetX(10) < 1);
+});
+
+test("별은 가장자리에 나오고, 속도는 최고 속도를 넘지 않는다", () => {
+  const star = plane.spawnItem(sequence(0, 0, 0.5));
+  assert.equal(star.kind, "star");
+  assert.ok(star.x < 0.25);
+  assert.equal(plane.spawnItem(sequence(0.99, 0.1, 0.5)).kind, "bird");
+  assert.equal(plane.fallSpeed(10000), plane.MAX_SPEED);
+});
+
+// ───────── 공중 그림 퀴즈 ─────────
+test("손 모양으로 펜 상태를 정한다", () => {
+  assert.equal(draw.penMode(fakeHand([true, false, false, false])), "draw");
+  assert.equal(draw.penMode(fakeHand([true, true, true, true])), "erase");
+  assert.equal(draw.penMode(fakeHand([true, true, false, false])), "hover");
+  assert.equal(draw.penMode(fakeHand([false, false, false, false])), "hover");
+});
+
+test("손떨림을 줄이며 따라가고, 제시어는 겹치지 않게 고른다", () => {
+  assert.deepEqual(draw.smoothPoint(null, { x: 1, y: 1 }), { x: 1, y: 1 });
+  const p = draw.smoothPoint({ x: 0, y: 0 }, { x: 1, y: 1 }, 0.5);
+  near(p.x, 0.5);
+  const used = new Set();
+  const total = Object.values(draw.WORDS).flat().length;
+  for (let i = 0; i < total; i++) {
+    const w = draw.pickWord(used);
+    assert.ok(!used.has(w.word), `${w.word} 중복`);
+    used.add(w.word);
+  }
+  const again = draw.pickWord(used); // 다 쓰면 처음부터
+  assert.ok(again.word);
+  assert.equal(used.size, 0);
+});
+
+// ───────── 풍선 팡팡 ─────────
+test("풍선마다 터뜨릴 수 있는 몸 부위가 다르다", () => {
+  assert.ok(balloon.canPop("any", "hand"));
+  assert.ok(balloon.canPop("foot", "foot"));
+  assert.ok(!balloon.canPop("foot", "hand"));
+  assert.ok(!balloon.canPop("head", "foot"));
+});
+
+test("몸 점이 풍선에 닿았는지 가로세로 비율을 고려해 판단한다", () => {
+  const b = { x: 0.5, y: 0.5 };
+  assert.ok(balloon.touching({ x: 0.5, y: 0.5 + balloon.BALLOON_SIZE }, b, 16 / 9));
+  assert.ok(!balloon.touching({ x: 0.5 + 0.1, y: 0.5 }, b, 16 / 9)); // 가로 0.1은 높이로 0.178
+});
+
+test("앉아서 하기에는 발 풍선이 없고, 풍선은 부위에 맞는 높이에 나온다", () => {
+  for (let i = 0; i < 200; i++) assert.notEqual(balloon.pickType(true, 30), "foot");
+  assert.ok(balloon.spawnPosition("head", false, () => 0.99).y < 0.31);
+  assert.ok(balloon.spawnPosition("foot", false, () => 0).y >= 0.78);
+});
+
+test("양손이 코보다 위에 있으면 손을 든 것이다", () => {
+  const body = Array.from({ length: 33 }, () => ({ x: 0.5, y: 0.5, visibility: 1 }));
+  body[0] = { x: 0.5, y: 0.3, visibility: 1 };
+  body[15] = { x: 0.4, y: 0.2, visibility: 1 };
+  body[16] = { x: 0.6, y: 0.2, visibility: 1 };
+  assert.ok(handsUp(body));
+  body[16] = { x: 0.6, y: 0.6, visibility: 1 };
+  assert.ok(!handsUp(body));
+});
+
+// ───────── 얼음 땡 ─────────
+function standingBody(dx = 0, scale = 1) {
+  const body = Array.from({ length: 33 }, () => ({ x: 0.5 + dx, y: 0.5, visibility: 1 }));
+  const set = (i, x, y) => (body[i] = { x: 0.5 + dx + x * scale, y: 0.5 + y * scale, visibility: 1 });
+  set(0, 0, -0.3);
+  set(11, -0.05, -0.2); set(12, 0.05, -0.2);
+  set(13, -0.08, -0.08); set(14, 0.08, -0.08);
+  set(15, -0.09, 0.02); set(16, 0.09, 0.02);
+  set(23, -0.04, 0.05); set(24, 0.04, 0.05);
+  set(25, -0.04, 0.2); set(26, 0.04, 0.2);
+  set(27, -0.04, 0.35); set(28, 0.04, 0.35);
+  return body;
+}
+
+test("가만히 있으면 움직이지 않은 것, 팔을 크게 들면 움직인 것", () => {
+  const aspect = 16 / 9;
+  const ref = standingBody();
+  assert.ok(!freeze.isMoved(ref, standingBody(), aspect));
+  const jitter = standingBody(0.003); // 아주 작은 떨림
+  assert.ok(!freeze.isMoved(ref, jitter, aspect));
+  const waved = standingBody();
+  waved[15] = { x: 0.3, y: 0.15, visibility: 1 };
+  waved[13] = { x: 0.38, y: 0.3, visibility: 1 };
+  assert.ok(freeze.isMoved(ref, waved, aspect));
+});
+
+test("멀리 있는 사람(작게 보이는 사람)도 같은 기준으로 판단한다", () => {
+  const aspect = 16 / 9;
+  const small = standingBody(0, 0.5);
+  const smallMoved = standingBody(0, 0.5);
+  smallMoved[15] = { x: smallMoved[15].x - 0.06, y: smallMoved[15].y - 0.08, visibility: 1 };
+  smallMoved[16] = { x: smallMoved[16].x + 0.06, y: smallMoved[16].y - 0.08, visibility: 1 };
+  assert.ok(freeze.isMoved(small, smallMoved, aspect));
+  near(freeze.moveScore(small, small, aspect), 0);
+});
+
+test("프레임마다 같은 사람끼리 짝짓는다", () => {
+  const aspect = 16 / 9;
+  const tracks = [{ x: 0.2, y: 0.3 }, { x: 0.7, y: 0.3 }];
+  assert.deepEqual(freeze.matchPeople(tracks, [{ x: 0.71, y: 0.31 }, { x: 0.21, y: 0.3 }], aspect), [1, 0]);
+  assert.deepEqual(freeze.matchPeople(tracks, [{ x: 0.45, y: 0.9 }], aspect), [-1]); // 새로 들어온 사람
+  const smoothed = freeze.smoothBody([{ x: 0, y: 0 }], [{ x: 1, y: 1, visibility: 1 }], 0.5);
+  near(smoothed[0].x, 0.5);
+  const d = freeze.danceSeconds(() => 0.5);
+  assert.ok(d >= 5 && d <= 11);
+});
+
+// ───────── 순서대로 집게 ─────────
+function pinchHand(gap) {
+  const hand = Array.from({ length: 21 }, () => ({ x: 0.5, y: 0.5 }));
+  hand[0] = { x: 0.5, y: 0.8 };
+  hand[9] = { x: 0.5, y: 0.6 }; // 손 크기 0.2
+  hand[4] = { x: 0.45, y: 0.5 };
+  hand[8] = { x: 0.45 + gap, y: 0.5 };
+  return hand;
+}
+
+test("엄지-검지 거리를 손 크기로 나눠 집기를 판단한다", () => {
+  near(pinch.pinchRatio(pinchHand(0.1)), 0.5);
+  let state = pinch.updatePinch(false, pinch.pinchRatio(pinchHand(0.02)));
+  assert.deepEqual(state, { pinched: true, clicked: true });
+  state = pinch.updatePinch(true, 0.4); // 경계 근처 떨림: 여전히 집은 상태, 다시 누르지 않음
+  assert.deepEqual(state, { pinched: true, clicked: false });
+  state = pinch.updatePinch(true, 0.6);
+  assert.deepEqual(state, { pinched: false, clicked: false });
+  near(pinch.pinchPoint(pinchHand(0.1)).x, 0.5);
+});
+
+test("글자는 겹치지 않게 화면 안에 흩어 놓는다", () => {
+  const aspect = 16 / 9;
+  for (const set of Object.values(pinch.SETS)) {
+    const spots = pinch.layout(set.items.length, aspect);
+    assert.equal(spots.length, set.items.length);
+    for (const p of spots) assert.ok(p.x >= 0.08 && p.x <= 0.92 && p.y >= 0.24 && p.y <= 0.9);
+    for (let i = 0; i < spots.length; i++)
+      for (let j = i + 1; j < spots.length; j++)
+        assert.ok(Math.hypot((spots[i].x - spots[j].x) * aspect, spots[i].y - spots[j].y) >= pinch.ITEM_SIZE * 2);
+  }
+});
+
+test("집은 위치에서 가장 가까운 글자를 찾고, 이미 모은 글자는 건너뛴다", () => {
+  const aspect = 16 / 9;
+  const items = [{ x: 0.3, y: 0.5, done: false }, { x: 0.32, y: 0.5, done: false }, { x: 0.8, y: 0.5, done: true }];
+  assert.equal(pinch.hitIndex({ x: 0.318, y: 0.5 }, items, aspect), 1);
+  assert.equal(pinch.hitIndex({ x: 0.8, y: 0.5 }, items, aspect), -1);
+  assert.equal(pinch.SETS.hangul.items.length, 14);
+});
